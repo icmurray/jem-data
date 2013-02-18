@@ -1,0 +1,6 @@
+Twisted==12.3.0
+pymodbus==1.1.0
+pymongo==2.4.2
+pyserial==2.6
+wsgiref==0.1.2
+zope.interface==4.0.3
