@@ -26,7 +26,7 @@ def dassert(deferred, callback):
 
 def beginAsynchronousTest(client):
     rr = client.read_input_registers(0xc550,8,unit=0x01)
-    dassert(rr, lambda r: r.registers == [15]*8)      # test the expected value
+    dassert(rr, lambda r: r.registers == [0]*8)      # test the expected value
 
     #-----------------------------------------------------------------------# 
     # close the client at some time later
