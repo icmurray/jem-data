@@ -13,8 +13,7 @@ class RegisterResponse(object):
         assert addr in self._requested_registers
         values = [ self._response.getRegister(addr + i - self._min_addr) \
                         for i in range(self._requested_registers[addr]) ]
-        value = reduce(lambda acc, x: (acc << 16) + x, values, 0)
-        return value
+        return reduce(lambda acc, x: (acc << 16) + x, values, 0)
 
 def map_to_register_response(d, requested_registers):
     def _f(response):
