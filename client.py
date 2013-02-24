@@ -2,7 +2,7 @@ from twisted.internet import reactor, protocol
 
 from pymodbus.client.async import ModbusClientProtocol
 
-from jem_data.core import requests
+from jem_data.core import modbus
 from jem_data.core import util
 
 #---------------------------------------------------------------------------# 
@@ -35,7 +35,7 @@ def beginAsynchronousTest(client):
             0xC560: 2,
     }
 
-    responseD = requests.read_registers(client, unit=0x01, registers=registers)
+    responseD = modbus.read_registers(client, unit=0x01, registers=registers)
     responseD.addCallback(util.print_data)
 
     #-----------------------------------------------------------------------# 
