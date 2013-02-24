@@ -10,7 +10,9 @@ def create():
         di = datastore.ModbusSequentialDataBlock(0, [1]),
         co = datastore.ModbusSequentialDataBlock(0, [1]),
         hr = datastore.ModbusSequentialDataBlock(0, [1]),
-        ir = A40InputRegistersDataBlock()
+        ir = A40InputRegistersDataBlock({
+           0xC550: 0x1234ABCD
+        })
     )
 
 _CT_AND_VT_REGISTERS = dict((addr, 2) for addr in range(0xC550, 0xC588, 2))
@@ -51,4 +53,3 @@ class A40InputRegistersDataBlock(datastore.ModbusSparseDataBlock):
             to_return[addr + width - i - 1] = (value & (mask << shift)) >> shift
 
         return to_return
-

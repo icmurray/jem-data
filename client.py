@@ -2,6 +2,9 @@ from twisted.internet import reactor, protocol
 
 from pymodbus.client.async import ModbusClientProtocol
 
+from jem_data.core import requests
+from jem_data.core import util
+
 #---------------------------------------------------------------------------# 
 # configure the client logging
 #---------------------------------------------------------------------------# 
@@ -25,8 +28,15 @@ def dassert(deferred, callback):
     deferred.addErrback(lambda  r: _print_and_fail(r))
 
 def beginAsynchronousTest(client):
-    rr = client.read_input_registers(0xc550,8,unit=0x01)
-    dassert(rr, lambda r: r.registers == [0]*8)      # test the expected value
+
+    registers = {
+            0xC550: 2,
+            0xC552: 2,
+            0xC560: 2,
+    }
+
+    responseD = requests.read_registers(client, unit=0x01, registers=registers)
+    responseD.addCallback(util.print_data)
 
     #-----------------------------------------------------------------------# 
     # close the client at some time later
