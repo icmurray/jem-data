@@ -13,15 +13,17 @@ def read_registers(client, unit, registers):
     '''
     min_register = min(registers.keys())
     max_register = max(registers.keys())
-    max_register += registers[max_register]
-    register_range = max_register - min_register
+    register_range = max_register + registers[max_register] - min_register
 
     if register_range > 125:
-        return defer.fail(ValueError('Unable to create request of such a large range'))
+        return defer.fail(ValueError('Unable to create request of such a '
+                                     'large range'))
 
     # The `- 1` is because the registers are *named* [1..n], but when making
     # a request they are reference as [0,n)
-    d = client.read_input_registers(min_register - 1, register_range, unit=unit)
+    d = client.read_input_registers(min_register - 1,
+                                    register_range,
+                                    unit=unit)
 
     # Map the result of the deferred to a more manageable response type.
     response.map_to_register_response(d, registers)
