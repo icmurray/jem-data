@@ -24,7 +24,9 @@ def test_read_registers_checks_for_large_register_range():
     }
 
     client = mock.Mock()
-    modbus.read_registers(client, unit=0x01, registers=registers)
+    nose.assert_raises(modbus.InvalidModbusRangeException,
+                       modbus.read_registers,
+                       client, unit=0x01, registers=registers)
     nose.assert_equal(client.read_input_registers.call_count, 0)
 
 def test_read_registers_includes_word_size_when_calculating_range():
@@ -33,7 +35,9 @@ def test_read_registers_includes_word_size_when_calculating_range():
     }
 
     client = mock.Mock()
-    modbus.read_registers(client, unit=0x01, registers=registers)
+    nose.assert_raises(modbus.InvalidModbusRangeException,
+                       modbus.read_registers,
+                       client, unit=0x01, registers=registers)
     nose.assert_equal(client.read_input_registers.call_count, 0)
 
 def test_read_register_range_exactly_right_edge_case():

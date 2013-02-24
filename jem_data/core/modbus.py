@@ -2,6 +2,8 @@ import logging
 
 from twisted.internet import defer
 
+import jem_data.core.exceptions as jem_exceptions
+
 _log = logging.getLogger(__name__)
 
 def read_registers(client, unit, registers):
@@ -34,13 +36,19 @@ def read_registers(client, unit, registers):
 
     Returns a Deferred which contains the result of the request.
     '''
+
+    if not registers:
+        raise ValueError("Cannot request empty set of registers")
+
+    if not isinstance(registers, dict):
+        raise TypeError("registers argument must be a dict")
+
     min_register = min(registers.keys())
     max_register = max(registers.keys())
     register_range = max_register + registers[max_register] - min_register
 
     if register_range > 125:
-        return defer.fail(ValueError('Unable to create request of such a '
-                                     'large range'))
+        raise InvalidModbusRangeException(register_range)
 
     # The `- 1` is because the registers are *named* [1..n], but when making
     # a request they are reference as [0,n)
@@ -76,8 +84,18 @@ class RegisterResponse(object):
         self._min_addr = min(self._requested_registers.keys())
 
     def read_register(self, addr):
-        assert addr in self._requested_registers
+        if addr not in self._requested_registers:
+            raise IndexError('Unknown register address: %x' % addr)
+
         values = [ self._response.getRegister(addr + i - self._min_addr) \
                         for i in range(self._requested_registers[addr]) ]
         return reduce(lambda acc, x: (acc << 16) + x, values, 0)
 
+#-----------------------------------------------------------------------------
+# Exception definitions
+#-----------------------------------------------------------------------------
+
+class InvalidModbusRangeException(jem_exceptions.JemException):
+    def __init__(self, range_size):
+        super(InvalidModbusRangeException, self).__init__(
+                'Modbus range too large: %d' % range_size)
