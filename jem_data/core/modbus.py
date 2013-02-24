@@ -52,6 +52,11 @@ def read_registers(client, unit, registers):
 
     # The `- 1` is because the registers are *named* [1..n], but when making
     # a request they are reference as [0,n)
+    _log.debug('read_input_registers: %x -> %x from %s [unit: %x]',
+               min_register - 1,
+               min_register - 2 + register_range,
+               str(client.transport.getHost()),
+               unit)
     d = client.read_input_registers(min_register - 1,
                                     register_range,
                                     unit=unit)
