@@ -55,21 +55,21 @@ def read_registers(client, unit, registers):
     _log.debug('read_input_registers: %x -> %x from %s [unit: %x]',
                min_register - 1,
                min_register - 2 + register_range,
-               str(client.transport.getHost()),
+               str(client),
                unit)
-    d = client.read_input_registers(min_register - 1,
-                                    register_range,
-                                    unit=unit)
+    response = client.read_input_registers(min_register - 1,
+                                           register_range,
+                                           unit=unit)
 
-    # Map the result of the deferred to a more manageable response type.
-    map_to_register_response(d, registers)
+    if isinstance(response, defer.Deferred):
+        def callback(data):
+            return RegisterResponse(data, registers)
+        response.addCallback(callback)
 
-    return d
-
-def map_to_register_response(d, requested_registers):
-    def _f(response):
-        return RegisterResponse(response, requested_registers)
-    d.addCallback(_f)
+    else:
+        response = RegisterResponse(response, registers)
+    
+    return response
 
 class RegisterResponse(object):
     '''Wraps a pymodbus response object to provide access to the registers
