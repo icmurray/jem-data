@@ -12,7 +12,7 @@ def test_read_registers_requests_the_correct_address_range():
 
     client = mock.Mock()
     modbus.read_registers(client, unit=0x01, registers=registers)
-    client.read_input_registers.assert_called_once_with(
+    client.read_holding_registers.assert_called_once_with(
             0xC550-1,
             0xC559-0xC550,
             unit=0x01)
@@ -27,7 +27,7 @@ def test_read_registers_checks_for_large_register_range():
     nose.assert_raises(modbus.InvalidModbusRangeException,
                        modbus.read_registers,
                        client, unit=0x01, registers=registers)
-    nose.assert_equal(client.read_input_registers.call_count, 0)
+    nose.assert_equal(client.read_holding_registers.call_count, 0)
 
 def test_read_registers_includes_word_size_when_calculating_range():
     registers = {
@@ -38,7 +38,7 @@ def test_read_registers_includes_word_size_when_calculating_range():
     nose.assert_raises(modbus.InvalidModbusRangeException,
                        modbus.read_registers,
                        client, unit=0x01, registers=registers)
-    nose.assert_equal(client.read_input_registers.call_count, 0)
+    nose.assert_equal(client.read_holding_registers.call_count, 0)
 
 def test_read_register_range_exactly_right_edge_case():
     registers = {
@@ -48,7 +48,7 @@ def test_read_register_range_exactly_right_edge_case():
 
     client = mock.Mock()
     modbus.read_registers(client, unit=0x01, registers=registers)
-    client.read_input_registers.assert_called_once_with(0, 125, unit=0x01)
+    client.read_holding_registers.assert_called_once_with(0, 125, unit=0x01)
 
 def test_access_value_of_a_multi_register_value():
     jem_response = modbus.RegisterResponse(
