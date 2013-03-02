@@ -2,6 +2,8 @@ import logging
 
 from twisted.internet import defer
 
+import pymodbus.pdu as pdu
+
 import jem_data.core.exceptions as jem_exceptions
 
 _log = logging.getLogger(__name__)
@@ -65,6 +67,9 @@ def read_registers(client, unit, registers):
         def callback(data):
             return RegisterResponse(data, registers)
         response.addCallback(callback)
+
+    elif isinstance(response, pdu.ExceptionResponse):
+        raise jem_exceptions._wrap_exception_response(response)
 
     else:
         response = RegisterResponse(response, registers)
