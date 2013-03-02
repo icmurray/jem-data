@@ -21,8 +21,8 @@ def create():
     return datastore.ModbusSlaveContext(
         di = datastore.ModbusSequentialDataBlock(0, [1]),
         co = datastore.ModbusSequentialDataBlock(0, [1]),
-        hr = datastore.ModbusSequentialDataBlock(0, [1]),
-        ir = A40InputRegistersDataBlock({
+        ir = datastore.ModbusSequentialDataBlock(0, [1]),
+        hr = A40HoldingRegistersDataBlock({
            _HOUR_METER: 0x0,
            _PHASE_CURRENT_1: 0x0,
            _PHASE_CURRENT_2: 0x0,
@@ -33,7 +33,7 @@ def create():
 _CT_AND_VT_REGISTERS = dict((addr, 2) for addr in range(0xC550, 0xC588, 2))
 _ALL_REGISTERS = _CT_AND_VT_REGISTERS
 
-class A40InputRegistersDataBlock(datastore.ModbusSparseDataBlock):
+class A40HoldingRegistersDataBlock(datastore.ModbusSparseDataBlock):
     '''A simulated datablock of registers for the Diris A40.
 
     A convenient subclass of a sparse data block, this transparantly handles
@@ -54,7 +54,7 @@ class A40InputRegistersDataBlock(datastore.ModbusSparseDataBlock):
                         for addr in addrs ):
             expanded_values.update(d)
 
-        super(A40InputRegistersDataBlock, self).__init__(expanded_values)
+        super(A40HoldingRegistersDataBlock, self).__init__(expanded_values)
 
         if dynamic:
             _log.debug("A40 Register Block initialised with dynamic updating")
