@@ -2,9 +2,9 @@ import logging
 
 from pymodbus.datastore import ModbusServerContext
 from pymodbus.device import ModbusDeviceIdentification
-from pymodbus.server.async import StartTcpServer
 
 import a40
+import tcp_gateway
 
 logging.basicConfig()
 log = logging.getLogger()
@@ -23,4 +23,4 @@ identity.VendorName  = 'Socomec'
 identity.ProductName = 'Dirus'
 identity.ModelName   = 'A40'
 
-StartTcpServer(context, identity=identity, address=("localhost", 5020))
+tcp_gateway.start(context, identity=identity, address=("localhost", 5020))
