@@ -10,7 +10,9 @@ Options
 """
 import collections
 import logging
+import Queue
 import random
+import threading
 import time
 
 import docopt
@@ -29,6 +31,10 @@ _MIN_NUMBER_OF_REGISTERS = min(10, _MAX_NUMBER_OF_REGISTERS)
 
 Measurement = collections.namedtuple('Measurement',
                                      'elapsed_time')
+ClientResult = collections.namedtuple('ClientResult',
+                                      'client_id measurements')
+Result = collections.namedtuple('Result',
+                                'concurrency client_id measurements')
 
 def _choose_random_registers():
     num_registers = random.randint(_MIN_NUMBER_OF_REGISTERS,
@@ -42,9 +48,9 @@ def _make_random_request(client):
     response = modbus.read_registers(client, registers=registers, unit=unit)
     elapsed_time = time.time() - start
     #print response
-    return Measurement(elapsed_time=elapsed_time)
+    return Measurement(elapsed_time = elapsed_time)
 
-def _benchmark(host, port, N=100, delay=0.1):
+def _run_single_client(client_id, host, port, results, N=10000, delay=0.001):
     client = ModbusClient(host, port=port)
     client.connect()
 
@@ -52,11 +58,38 @@ def _benchmark(host, port, N=100, delay=0.1):
     
     for i in xrange(N):
         measurements.append(_make_random_request(client))
-        #time.sleep(delay)
+        time.sleep(delay)
 
     client.close()
+    results.put(ClientResult(client_id = client_id, measurements = measurements))
 
-    print sum(map(lambda m: m.elapsed_time, measurements)) / len(measurements)
+def _benchmark_server(host, port):
+    for concurrency in xrange(4):
+
+        client_results = Queue.Queue()
+
+        ts = [ threading.Thread(target = _run_single_client,
+                                args = (i, host, port, client_results))
+                                        for i in range(concurrency+1) ]
+        for t in ts:
+            t.start()
+
+        for t in ts:
+            t.join()
+
+        results = []
+        while not client_results.empty():
+            result = client_results.get()
+            results.append(Result(
+                concurrency = concurrency,
+                client_id = result.client_id,
+                measurements = result.measurements))
+
+        for result in results:
+            print '[%d] Client %d: avg. response time %f' % (
+                    result.concurrency,
+                    result.client_id,
+                    sum(map(lambda m: m.elapsed_time, result.measurements)) / len(result.measurements))
 
 def _validate_args(raw_args):
     args = {}
@@ -65,7 +98,7 @@ def _validate_args(raw_args):
     return args
 
 def main(host, port):
-    _benchmark(host, port)
+    _benchmark_server(host, port)
 
 if __name__ == '__main__':
     args = _validate_args(docopt.docopt(__doc__))
