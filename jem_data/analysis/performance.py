@@ -4,11 +4,13 @@ Usage:
     performance.py [--host=<host>]
                    [--port=<port>]
                    [--unit=<unit>]...
+                   [--requests=<requests>]
 
 Options
-    --host=<host>       server host [default: 127.0.0.1]
-    --port=<port>       server port [default: 5020]
-    --unit=<unit>...    units to test against [default: 0x1]
+    --host=<host>           server host [default: 127.0.0.1]
+    --port=<port>           server port [default: 5020]
+    --unit=<unit>...        units to test against [default: 0x1]
+    --requests=<requests>   requests to make (per client)
 
 """
 import collections
@@ -57,31 +59,37 @@ def _run_single_client(client_id, host, port, units, results, N=100, delay=0.001
     client = ModbusClient(host, port=port)
     client.connect()
 
+    _log.info('Client %d connected to %s (%s)', client_id, host, port)
+
     measurements = []
     errors = []
     for i in xrange(N):
+        if N >= 1000 and i % (N/10) == 0 and i > 0:
+            _log.info('Client %d %.0f%% complete', client_id, 100.0*i/N)
         try:
             measurements.append(_make_random_request(client, units))
         except jem_exceptions.JemException, e:
             errors.append(e)
+            _log.warn('Client %d received error response: %s', client_id, e)
         finally:
             time.sleep(delay)
 
     client.close()
+    _log.info('Client %d closed connection', client_id)
     results.put(ClientMeasurements(client_id=client_id,
                                    measurements=measurements,
                                    errors=errors))
 
-def _benchmark_server(host, port, units):
+def _benchmark_server(host, port, units, requests):
     results = []
     for concurrency in xrange(1,5):
+        _log.info('Starting benchmarking at concurrency level %d', concurrency)
 
         client_results = Queue.Queue()
-
         ts = []
         for client_id in range(concurrency):
-            args = (client_id, host, port, units, client_results)
-            t = threading.Thread( target=_run_single_client, args = args)
+            args = (client_id, host, port, units, client_results, requests)
+            t = threading.Thread(target=_run_single_client, args = args)
             ts.append(t)
             t.start()
 
@@ -113,10 +121,11 @@ def _validate_args(raw_args):
     args['host'] = raw_args['--host']
     args['port'] = raw_args['--port']
     args['units'] = map(_from_hex_string, raw_args['--unit'])
+    args['requests'] = int(raw_args['--requests'])
     return args
 
-def main(host, port, units):
-    results = _benchmark_server(host, port, units)
+def main(host, port, units, requests):
+    results = _benchmark_server(host, port, units, requests)
     _print_results(results)
 
 if __name__ == '__main__':
