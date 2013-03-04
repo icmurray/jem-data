@@ -7,15 +7,20 @@ Usage:
                    [--requests=<requests>]
                    [--delay=<delay>]...
                    [--with-throughput]
+                   [--warmup=<warmup>]
 
 Options
     --host=<host>           server host [default: 127.0.0.1]
     --port=<port>           server port [default: 5020]
     --unit=<unit>...        units to test against [default: 0x1]
     --requests=<requests>   requests to make (per client)
+                            [default: 1000]
     --delay=<delay>         a delay between requests (per client)
                             [default: 0, 0.001, 0.01, 0.1]
     --with-throughput       record throughput -- runs a test with delay of 0
+    --warmup=<warmup>      perform this numbe of requests before starting
+                            to record response times.
+                            [default: 500]
 
 """
 import collections
@@ -57,10 +62,9 @@ def _make_random_request(client, units):
     start = time.time()
     response = modbus.read_registers(client, registers=registers, unit=unit)
     elapsed_time = time.time() - start
-    #print response
     return elapsed_time
 
-def _run_single_client(client_id, host, port, units, results, N, delay):
+def _run_single_client(client_id, host, port, units, results, N, delay, warmup):
     _log.info('Client %d connecting to %s (%s)', client_id, host, port)
     client = ModbusClient(host, port=port)
     client.connect()
@@ -73,7 +77,11 @@ def _run_single_client(client_id, host, port, units, results, N, delay):
         if N >= 1000 and i % (N/10) == 0 and i > 0:
             _log.info('Client %d %.0f%% complete', client_id, 100.0*i/N)
         try:
-            measurements.append(_make_random_request(client, units))
+            m = _make_random_request(client, units)
+            if i >= warmup or N <= warmup:
+                if i == warmup:
+                    _log.info('Client %d warmup complete.', client_id)
+                measurements.append(m)
         except jem_exceptions.JemException, e:
             errors.append(e)
             _log.warn('Client %d received error response: %s', client_id, e)
@@ -86,7 +94,7 @@ def _run_single_client(client_id, host, port, units, results, N, delay):
                                    measurements=measurements,
                                    errors=errors))
 
-def _benchmark_server(host, port, units, requests, delays):
+def _benchmark_server(host, port, units, requests, delays, warmup):
     results = []
     for concurrency in xrange(1,5):
         _log.info('Starting benchmarking at concurrency level %d', concurrency)
@@ -97,7 +105,14 @@ def _benchmark_server(host, port, units, requests, delays):
             client_results = Queue.Queue()
             ts = []
             for client_id in range(concurrency):
-                args = (client_id, host, port, units, client_results, requests, delay)
+                args = (client_id,
+                        host,
+                        port,
+                        units,
+                        client_results,
+                        requests,
+                        delay,
+                        warmup)
                 t = threading.Thread(target=_run_single_client, args = args)
                 ts.append(t)
 
@@ -148,12 +163,13 @@ def _validate_args(raw_args):
     args['requests'] = int(raw_args['--requests'])
     args['delays'] = map(float, raw_args['--delay'])
     args['with_throughput'] = raw_args['--with-throughput']
+    args['warmup'] = int(raw_args['--warmup'])
     return args
 
-def main(host, port, units, requests, delays, with_throughput):
+def main(host, port, units, requests, delays, with_throughput, warmup):
     if with_throughput:
         delays = list(set(delays).union(set([0])))
-    results = _benchmark_server(host, port, units, requests, delays)
+    results = _benchmark_server(host, port, units, requests, delays, warmup)
     _print_results(results)
 
 if __name__ == '__main__':
