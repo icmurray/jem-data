@@ -1,11 +1,14 @@
 """Measure performance characteristics of a given Dirus gateway.
 
 Usage:
-    performance.py [options]
+    performance.py [--host=<host>]
+                   [--port=<port>]
+                   [--unit=<unit>]...
 
 Options
     --host=<host>       server host [default: 127.0.0.1]
     --port=<port>       server port [default: 5020]
+    --unit=<unit>...    units to test against [default: 0x1]
 
 """
 import collections
@@ -41,8 +44,8 @@ def _choose_random_registers():
                                    _MAX_NUMBER_OF_REGISTERS)
     return random.sample(_REGISTERS.keys(), num_registers)
 
-def _make_random_request(client):
-    unit = 0x01
+def _make_random_request(client, units):
+    unit = random.sample(units, 1)[0]
     registers = dict( (addr, 2) for addr in _choose_random_registers())
     start = time.time()
     response = modbus.read_registers(client, registers=registers, unit=unit)
@@ -50,7 +53,7 @@ def _make_random_request(client):
     #print response
     return elapsed_time
 
-def _run_single_client(client_id, host, port, results, N=100, delay=0.001):
+def _run_single_client(client_id, host, port, units, results, N=100, delay=0.001):
     client = ModbusClient(host, port=port)
     client.connect()
 
@@ -58,7 +61,7 @@ def _run_single_client(client_id, host, port, results, N=100, delay=0.001):
     errors = []
     for i in xrange(N):
         try:
-            measurements.append(_make_random_request(client))
+            measurements.append(_make_random_request(client, units))
         except jem_exceptions.JemException, e:
             errors.append(e)
         finally:
@@ -69,16 +72,17 @@ def _run_single_client(client_id, host, port, results, N=100, delay=0.001):
                                    measurements=measurements,
                                    errors=errors))
 
-def _benchmark_server(host, port):
+def _benchmark_server(host, port, units):
     results = []
     for concurrency in xrange(1,5):
 
         client_results = Queue.Queue()
 
-        ts = [ threading.Thread(target = _run_single_client,
-                                args = (client_id, host, port, client_results))
-                                        for client_id in range(concurrency) ]
-        for t in ts:
+        ts = []
+        for client_id in range(concurrency):
+            args = (client_id, host, port, units, client_results)
+            t = threading.Thread( target=_run_single_client, args = args)
+            ts.append(t)
             t.start()
 
         for t in ts:
@@ -101,14 +105,18 @@ def _print_results(results):
                 result.client_id,
                 sum(result.measurements) / len(result.measurements))
 
+def _from_hex_string(s):
+    return int(s, 16)
+
 def _validate_args(raw_args):
     args = {}
     args['host'] = raw_args['--host']
     args['port'] = raw_args['--port']
+    args['units'] = map(_from_hex_string, raw_args['--unit'])
     return args
 
-def main(host, port):
-    results = _benchmark_server(host, port)
+def main(host, port, units):
+    results = _benchmark_server(host, port, units)
     _print_results(results)
 
 if __name__ == '__main__':
