@@ -8,7 +8,7 @@ Usage:
                    [--delay=<delay>]...
 
 Options
-    --hostE<host>           server host [default: 127.0.0.1]
+    --host=<host>           server host [default: 127.0.0.1]
     --port=<port>           server port [default: 5020]
     --unit=<unit>...        units to test against [default: 0x1]
     --requests=<requests>   requests to make (per client)
