@@ -20,6 +20,7 @@ import docopt
 from pymodbus.client.sync import ModbusTcpClient as ModbusClient
 
 from jem_data.core import modbus
+import jem_data.core.exceptions as jem_exceptions
 
 logging.basicConfig()
 _log = logging.getLogger()
@@ -29,12 +30,11 @@ _REGISTERS = dict((addr, 2) for addr in range(0xC550, 0xC588, 2))
 _MAX_NUMBER_OF_REGISTERS = len(_REGISTERS.keys())
 _MIN_NUMBER_OF_REGISTERS = min(10, _MAX_NUMBER_OF_REGISTERS)
 
-Measurement = collections.namedtuple('Measurement',
-                                     'elapsed_time')
-ClientResult = collections.namedtuple('ClientResult',
-                                      'client_id measurements')
+ClientMeasurements = collections.namedtuple(
+    'ClientMeasurements', 'client_id measurements errors')
+        
 Result = collections.namedtuple('Result',
-                                'concurrency client_id measurements')
+                                'concurrency client_id measurements errors')
 
 def _choose_random_registers():
     num_registers = random.randint(_MIN_NUMBER_OF_REGISTERS,
@@ -48,48 +48,58 @@ def _make_random_request(client):
     response = modbus.read_registers(client, registers=registers, unit=unit)
     elapsed_time = time.time() - start
     #print response
-    return Measurement(elapsed_time = elapsed_time)
+    return elapsed_time
 
-def _run_single_client(client_id, host, port, results, N=10000, delay=0.001):
+def _run_single_client(client_id, host, port, results, N=100, delay=0.001):
     client = ModbusClient(host, port=port)
     client.connect()
 
     measurements = []
-    
+    errors = []
     for i in xrange(N):
-        measurements.append(_make_random_request(client))
-        time.sleep(delay)
+        try:
+            measurements.append(_make_random_request(client))
+        except jem_exceptions.JemException, e:
+            errors.append(e)
+        finally:
+            time.sleep(delay)
 
     client.close()
-    results.put(ClientResult(client_id = client_id, measurements = measurements))
+    results.put(ClientMeasurements(client_id=client_id,
+                                   measurements=measurements,
+                                   errors=errors))
 
 def _benchmark_server(host, port):
-    for concurrency in xrange(4):
+    results = []
+    for concurrency in xrange(1,5):
 
         client_results = Queue.Queue()
 
         ts = [ threading.Thread(target = _run_single_client,
-                                args = (i, host, port, client_results))
-                                        for i in range(concurrency+1) ]
+                                args = (client_id, host, port, client_results))
+                                        for client_id in range(concurrency) ]
         for t in ts:
             t.start()
 
         for t in ts:
             t.join()
 
-        results = []
         while not client_results.empty():
             result = client_results.get()
             results.append(Result(
                 concurrency = concurrency,
                 client_id = result.client_id,
-                measurements = result.measurements))
+                measurements = result.measurements,
+                errors = result.errors))
 
-        for result in results:
-            print '[%d] Client %d: avg. response time %f' % (
-                    result.concurrency,
-                    result.client_id,
-                    sum(map(lambda m: m.elapsed_time, result.measurements)) / len(result.measurements))
+    return results
+
+def _print_results(results):
+    for result in results:
+        print '[%d] Client %d: avg. response time %f' % (
+                result.concurrency,
+                result.client_id,
+                sum(result.measurements) / len(result.measurements))
 
 def _validate_args(raw_args):
     args = {}
@@ -98,7 +108,8 @@ def _validate_args(raw_args):
     return args
 
 def main(host, port):
-    _benchmark_server(host, port)
+    results = _benchmark_server(host, port)
+    _print_results(results)
 
 if __name__ == '__main__':
     args = _validate_args(docopt.docopt(__doc__))
