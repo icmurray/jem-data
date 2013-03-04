@@ -6,6 +6,7 @@ Usage:
                    [--unit=<unit>]...
                    [--requests=<requests>]
                    [--delay=<delay>]...
+                   [--with-throughput]
 
 Options
     --host=<host>           server host [default: 127.0.0.1]
@@ -13,7 +14,8 @@ Options
     --unit=<unit>...        units to test against [default: 0x1]
     --requests=<requests>   requests to make (per client)
     --delay=<delay>         a delay between requests (per client)
-                            [default: 0.001, 0.01, 0.1]
+                            [default: 0, 0.001, 0.01, 0.1]
+    --with-throughput       record throughput -- runs a test with delay of 0
 
 """
 import collections
@@ -41,8 +43,8 @@ _MIN_NUMBER_OF_REGISTERS = min(10, _MAX_NUMBER_OF_REGISTERS)
 ClientMeasurements = collections.namedtuple(
     'ClientMeasurements', 'client_id measurements errors')
         
-Result = collections.namedtuple('Result',
-                                'concurrency client_id measurements errors')
+BenchmarkResult = collections.namedtuple(
+    'BenchmarkResult', 'concurrency delay client_measurements total_time')
 
 def _choose_random_registers():
     num_registers = random.randint(_MIN_NUMBER_OF_REGISTERS,
@@ -59,6 +61,7 @@ def _make_random_request(client, units):
     return elapsed_time
 
 def _run_single_client(client_id, host, port, units, results, N, delay):
+    _log.info('Client %d connecting to %s (%s)', client_id, host, port)
     client = ModbusClient(host, port=port)
     client.connect()
 
@@ -97,27 +100,42 @@ def _benchmark_server(host, port, units, requests, delays):
                 args = (client_id, host, port, units, client_results, requests, delay)
                 t = threading.Thread(target=_run_single_client, args = args)
                 ts.append(t)
-                t.start()
 
+            start = time.time()
+            for t in ts:
+                t.start()
             for t in ts:
                 t.join()
+            total_time = time.time() - start
 
+            client_measurements = []
             while not client_results.empty():
-                result = client_results.get()
-                results.append(Result(
-                    concurrency = concurrency,
-                    client_id = result.client_id,
-                    measurements = result.measurements,
-                    errors = result.errors))
+                client_measurements.append(client_results.get())
+
+            results.append(BenchmarkResult(
+                concurrency = concurrency,
+                delay = delay,
+                client_measurements = client_measurements,
+                total_time = total_time))
 
     return results
 
 def _print_results(results):
     for result in results:
-        print '[%d] Client %d: avg. response time %f' % (
+
+        measurements = []
+        for m in result.client_measurements:
+            measurements.extend(m.measurements)
+
+        errors = []
+        for m in result.client_measurements:
+            errors.extend(m.errors)
+
+        _log.info('Concurrency: %d; delay: %f; Avg: %f, Throughput: %f/sec.', 
                 result.concurrency,
-                result.client_id,
-                sum(result.measurements) / len(result.measurements))
+                result.delay,
+                sum(measurements) / len(measurements),
+                (len(measurements) + len(errors)) / result.total_time)
 
 def _from_hex_string(s):
     return int(s, 16)
@@ -129,9 +147,12 @@ def _validate_args(raw_args):
     args['units'] = map(_from_hex_string, raw_args['--unit'])
     args['requests'] = int(raw_args['--requests'])
     args['delays'] = map(float, raw_args['--delay'])
+    args['with_throughput'] = raw_args['--with-throughput']
     return args
 
-def main(host, port, units, requests, delays):
+def main(host, port, units, requests, delays, with_throughput):
+    if with_throughput:
+        delays = list(set(delays).union(set([0])))
     results = _benchmark_server(host, port, units, requests, delays)
     _print_results(results)
 
