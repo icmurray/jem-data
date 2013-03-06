@@ -8,25 +8,31 @@ Usage:
                    [--delay=<delay>]...
                    [--with-throughput]
                    [--warmup=<warmup>]
+                   [--target-dir=<target-dir>]
 
 Options
-    --host=<host>           server host [default: 127.0.0.1]
-    --port=<port>           server port [default: 5020]
-    --unit=<unit>...        units to test against [default: 0x1]
-    --requests=<requests>   requests to make (per client)
-                            [default: 1000]
-    --delay=<delay>         a delay between requests (per client)
-                            [default: 0 0.001 0.01 0.1]
-    --with-throughput       record throughput -- runs a test with delay of 0
-    --warmup=<warmup>      perform this numbe of requests before starting
-                            to record response times.
-                            [default: 500]
+    --host=<host>               server host [default: 127.0.0.1]
+    --port=<port>               server port [default: 5020]
+    --unit=<unit>...            units to test against [default: 0x1]
+    --requests=<requests>       requests to make (per client)
+                                [default: 1000]
+    --delay=<delay>             a delay between requests (per client)
+                                [default: 0 0.001 0.01 0.1]
+    --with-throughput           record throughput -- runs a test with delay of 0
+    --warmup=<warmup>           perform this numbe of requests before starting
+                                to record response times.
+                                [default: 500]
+    --target-dir=<target-dir>   directory to write result files to
+                                [default: ./results]
 
 """
+import csv
 import collections
 import logging
+import os
 import Queue
 import random
+import sys
 import threading
 import time
 
@@ -135,22 +141,66 @@ def _benchmark_server(host, port, units, requests, delays, warmup):
 
     return results
 
+def _write_results(results, target_dir):
+
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
+
+    time_string = time.strftime("%Y-%m-%d %H:%M:%S.csv", time.localtime())
+    filename = "response_times " + time_string
+    filepath = os.path.join(target_dir, filename)
+    f_out = open(filepath, 'wb')
+    csv_out = csv.writer(f_out)
+    _log.info("Writing results to %s", filepath)
+    csv_out.writerow(['delay', 'concurrency level', 'response time']) # header
+    for result in results:
+        ms = _get_all_measurements(result)
+        for m in ms:
+            row = [result.delay, result.concurrency, m]
+            csv_out.writerow(row)
+    f_out.flush()
+    f_out.close()
+
+    filename = "throughput " + time_string
+    filepath = os.path.join(target_dir, filename)
+    f_out = open(filepath, 'wb')
+    csv_out = csv.writer(f_out)
+    _log.info("Writing results to %s", filepath)
+    csv_out.writerow(['delay', 'concurrency level', 'throughput']) # header
+    for result in results:
+        ms = _get_all_measurements(result)
+        errors = _get_all_errors(result)
+        throughput = (len(ms) + len(errors)) / result.total_time
+        row = [result.delay, result.concurrency, throughput]
+        csv_out.writerow(row)
+    f_out.flush()
+    f_out.close()
+
+def _get_all_measurements(result):
+    measurements = []
+    for m in result.client_measurements:
+        measurements.extend(m.measurements)
+    return measurements
+
+def _get_all_errors(result):
+    errors = []
+    for m in result.client_measurements:
+        errors.extend(m.errors)
+    return errors
+
 def _print_results(results):
+    print "******* RESULTS ********"
     for result in results:
 
-        measurements = []
-        for m in result.client_measurements:
-            measurements.extend(m.measurements)
+        measurements = _get_all_measurements(result)
+        errors = _get_all_errors(result)
 
-        errors = []
-        for m in result.client_measurements:
-            errors.extend(m.errors)
-
-        _log.info('Concurrency: %d; delay: %f; Avg: %f, Throughput: %f/sec.', 
+        print('Concurrency: %d; delay: %f; Avg response time: %f, Throughput: %f/sec, Number of errors: %d' % (
                 result.concurrency,
                 result.delay,
                 sum(measurements) / len(measurements),
-                (len(measurements) + len(errors)) / result.total_time)
+                (len(measurements) + len(errors)) / result.total_time,
+                len(errors)))
 
 def _from_hex_string(s):
     return int(s, 16)
@@ -164,13 +214,15 @@ def _validate_args(raw_args):
     args['delays'] = map(float, raw_args['--delay'])
     args['with_throughput'] = raw_args['--with-throughput']
     args['warmup'] = int(raw_args['--warmup'])
+    args['target_dir'] = raw_args['--target-dir']
     return args
 
-def main(host, port, units, requests, delays, with_throughput, warmup):
+def main(host, port, units, requests, delays, with_throughput, warmup, target_dir):
     if with_throughput:
         delays = list(set(delays).union(set([0])))
     results = _benchmark_server(host, port, units, requests, delays, warmup)
     _print_results(results)
+    _write_results(results, target_dir)
 
 if __name__ == '__main__':
     args = _validate_args(docopt.docopt(__doc__))
