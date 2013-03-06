@@ -10,6 +10,7 @@ Options
     --host=<host>       server host [default: 127.0.0.1]
     --port=<port>       server port [default: 5020]
     --delay=<delay>     the delay between requests (seconds) [default: 1.0]
+    --unit=<unit>       the unit address to request [default: 0x01]
 
 """
 
@@ -25,7 +26,7 @@ logging.basicConfig()
 log = logging.getLogger()
 log.setLevel(logging.INFO)
 
-def main(host, port, delay):
+def main(host, port, delay, unit):
     client = ModbusClient(host, port=port)
     client.connect()
     
@@ -35,8 +36,6 @@ def main(host, port, delay):
             0xC562: 2,
             0xC564: 2,
     }
-    
-    unit = 0x1
     
     min_response_time = 100
     max_response_time = 0
@@ -69,6 +68,7 @@ def _validate_args(raw_args):
     args['host'] = raw_args['--host']
     args['port'] = raw_args['--port']
     args['delay'] = float(raw_args['--delay'])
+    args['unit'] = int(raw_args['--unit'], 16)
     return args
 
 if __name__ == '__main__':
