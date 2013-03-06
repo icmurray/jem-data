@@ -16,7 +16,7 @@ Options
     --requests=<requests>   requests to make (per client)
                             [default: 1000]
     --delay=<delay>         a delay between requests (per client)
-                            [default: 0, 0.001, 0.01, 0.1]
+                            [default: 0 0.001 0.01 0.1]
     --with-throughput       record throughput -- runs a test with delay of 0
     --warmup=<warmup>      perform this numbe of requests before starting
                             to record response times.
