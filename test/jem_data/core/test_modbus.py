@@ -13,7 +13,7 @@ def test_read_registers_requests_the_correct_address_range():
     client = mock.Mock()
     modbus.read_registers(client, unit=0x01, registers=registers)
     client.read_holding_registers.assert_called_once_with(
-            0xC550-1,
+            0xC550,
             0xC559-0xC550,
             unit=0x01)
 
@@ -48,7 +48,7 @@ def test_read_register_range_exactly_right_edge_case():
 
     client = mock.Mock()
     modbus.read_registers(client, unit=0x01, registers=registers)
-    client.read_holding_registers.assert_called_once_with(0, 125, unit=0x01)
+    client.read_holding_registers.assert_called_once_with(1, 125, unit=0x01)
 
 def test_access_value_of_a_multi_register_value():
     jem_response = modbus.RegisterResponse(

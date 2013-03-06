@@ -18,7 +18,7 @@ def create():
     For the timebeing this is just a stub.  But it does start the input registers
     at the correct address.
     '''
-    return datastore.ModbusSlaveContext(
+    return A40SlaveContext(
         di = datastore.ModbusSequentialDataBlock(0, [1]),
         co = datastore.ModbusSequentialDataBlock(0, [1]),
         ir = datastore.ModbusSequentialDataBlock(0, [1]),
@@ -33,6 +33,50 @@ def create():
 _CT_AND_VT_REGISTERS = dict((addr, 2) for addr in range(0xC550, 0xC588, 2))
 _ALL_REGISTERS = _CT_AND_VT_REGISTERS
 
+class A40SlaveContext(datastore.context.ModbusSlaveContext):
+    '''
+    Sub-class the standard slave context with one especially for the A40
+    because the A40 refers to registers 1-16 as 1-16, and not 0-15 as it should
+    according to section 4.4 of the modbus specification.  This class ensures
+    that this SlaveContext behaves like an A40, and not like the standard
+    modbus specification.
+    '''
+
+    def validate(self, fx, address, count=1):
+        ''' Validates the request to make sure it is in range
+
+        :param fx: The function we are working with
+        :param address: The starting address
+        :param count: The number of values to test
+        :returns: True if the request in within range, False otherwise
+        '''
+        ## address = address + 1  # section 4.4 of specification
+        _log.debug("validate[%d] %d:%d" % (fx, address, count))
+        return self.store[self.decode(fx)].validate(address, count)
+
+    def getValues(self, fx, address, count=1):
+        ''' Validates the request to make sure it is in range
+
+        :param fx: The function we are working with
+        :param address: The starting address
+        :param count: The number of values to retrieve
+        :returns: The requested values from a:a+c
+        '''
+        ## address = address + 1  # section 4.4 of specification
+        _log.debug("getValues[%d] %d:%d" % (fx, address, count))
+        return self.store[self.decode(fx)].getValues(address, count)
+
+    def setValues(self, fx, address, values):
+        ''' Sets the datastore with the supplied values
+
+        :param fx: The function we are working with
+        :param address: The starting address
+        :param values: The new values to be set
+        '''
+        ## address = address + 1  # section 4.4 of specification
+        _log.debug("setValues[%d] %d:%d" % (fx, address, len(values)))
+        self.store[self.decode(fx)].setValues(address, values)
+
 class A40HoldingRegistersDataBlock(datastore.ModbusSparseDataBlock):
     '''A simulated datablock of registers for the Diris A40.
 
@@ -41,7 +85,6 @@ class A40HoldingRegistersDataBlock(datastore.ModbusSparseDataBlock):
 
     It also dynamically updates its values using the twisted reactor.
     '''
-
 
     def __init__(self, values=None, dynamic=True):
         if values is None:

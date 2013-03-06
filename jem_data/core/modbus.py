@@ -52,16 +52,20 @@ def read_registers(client, unit, registers):
     if register_range > 125:
         raise InvalidModbusRangeException(register_range)
 
-    # The `- 1` is because the registers are *named* [1..n], but when making
-    # a request they are reference as [0,n)
+    # NOTE - the modbus PDU expects that requests for registers addressed as
+    #        1 - 16 to be requested as 0 - 15.  This means that the first
+    #        address below *should* be `min_register - 1`.  However, the
+    #        Dirus A40 still expects the addresses 1 - 15.  This means that
+    #        the following request is incorrect for any device that is not
+    #        a Dirus A40.
     _log.debug('read_holding_registers: %x -> %x from %s [unit: %x]',
-               min_register - 1,
-               min_register - 2 + register_range,
+               min_register,
+               min_register - 1 + register_range,
                str(client),
                unit)
-    response = client.read_holding_registers(min_register - 1,
-                                           register_range,
-                                           unit=unit)
+    response = client.read_holding_registers(min_register,
+                                             register_range,
+                                             unit=unit)
 
     if isinstance(response, defer.Deferred):
         def callback(data):
