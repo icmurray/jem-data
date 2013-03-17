@@ -6,7 +6,6 @@ Usage:
                    [--unit=<unit>]...
                    [--requests=<requests>]
                    [--delay=<delay>]...
-                   [--with-throughput]
                    [--warmup=<warmup>]
                    [--target-dir=<target-dir>]
                    [--table=<table>]...
@@ -18,11 +17,10 @@ Options
     --requests=<requests>       requests to make (per client)
                                 [default: 1000]
     --delay=<delay>             a delay between requests (per client)
-                                [default: 0 0.001 0.01 0.1]
-    --with-throughput           record throughput -- runs a test with delay of 0
+                                [default: 0]
     --warmup=<warmup>           perform this numbe of requests before starting
                                 to record response times.
-                                [default: 500]
+                                [default: 0]
     --target-dir=<target-dir>   directory to write result files to
                                 [default: ./results]
     --table=<table>...          register tables to test against
@@ -226,15 +224,12 @@ def _validate_args(raw_args):
     args['units'] = map(_from_hex_string, raw_args['--unit'])
     args['requests'] = int(raw_args['--requests'])
     args['delays'] = map(float, raw_args['--delay'])
-    args['with_throughput'] = raw_args['--with-throughput']
     args['warmup'] = int(raw_args['--warmup'])
     args['target_dir'] = raw_args['--target-dir']
     args['tables'] = map(lambda n: int(n) - 1, raw_args['--table'])
     return args
 
-def main(host, port, units, requests, delays, with_throughput, warmup, target_dir, tables):
-    if with_throughput:
-        delays = list(set(delays).union(set([0])))
+def main(host, port, units, requests, delays, warmup, target_dir, tables):
     results = _benchmark_server(host, port, units, requests, delays, warmup, tables)
     _print_results(results)
     _write_results(results, target_dir)
