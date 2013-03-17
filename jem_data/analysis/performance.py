@@ -33,7 +33,7 @@ import os
 import Queue
 import random
 import sys
-import threading
+import multiprocessing
 import time
 
 import docopt
@@ -47,11 +47,11 @@ logging.basicConfig()
 _log = logging.getLogger()
 _log.setLevel(logging.INFO)
 
-_REGISTERS = dict((addr, 2) for addr in range(0xC950, 51656, 1))
-#_REGISTERS = dict((addr, 2) for addr in range(0xC550, 0xC588, 2))
+#_REGISTERS = dict((addr, 2) for addr in range(0xC950, 51656, 1))
+_REGISTERS = dict((addr, 2) for addr in range(0xC550, 0xC588, 2))
 _MAX_NUMBER_OF_REGISTERS = min(120, len(_REGISTERS.keys()))
-_MIN_NUMBER_OF_REGISTERS = 120
-#_MIN_NUMBER_OF_REGISTERS = min(_MAX_NUMBER_OF_REGISTERS, _MAX_NUMBER_OF_REGISTERS)
+#_MIN_NUMBER_OF_REGISTERS = 120
+_MIN_NUMBER_OF_REGISTERS = min(_MAX_NUMBER_OF_REGISTERS, _MAX_NUMBER_OF_REGISTERS)
 
 ClientMeasurements = collections.namedtuple(
     'ClientMeasurements', 'client_id measurements errors')
@@ -110,8 +110,8 @@ def _benchmark_server(host, port, units, requests, delays, warmup):
         for delay in delays:
             _log.info('Starting benchmarking with delay %f', delay)
 
-            client_results = Queue.Queue()
-            ts = []
+            client_results = multiprocessing.Queue()
+            ps = []
             for client_id in range(concurrency):
                 args = (client_id,
                         host,
@@ -121,19 +121,19 @@ def _benchmark_server(host, port, units, requests, delays, warmup):
                         requests,
                         delay,
                         warmup)
-                t = threading.Thread(target=_run_single_client, args = args)
-                ts.append(t)
+                p = multiprocessing.Process(target=_run_single_client,
+                                            args = args)
+                ps.append(p)
 
             start = time.time()
-            for t in ts:
-                t.start()
-            for t in ts:
-                t.join()
-            total_time = time.time() - start
+            for p in ps:
+                p.start()
 
             client_measurements = []
-            while not client_results.empty():
+            for _ in range(concurrency):
                 client_measurements.append(client_results.get())
+
+            total_time = time.time() - start
 
             results.append(BenchmarkResult(
                 concurrency = concurrency,
