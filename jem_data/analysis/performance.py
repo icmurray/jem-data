@@ -9,22 +9,25 @@ Usage:
                    [--warmup=<warmup>]
                    [--target-dir=<target-dir>]
                    [--table=<table>]...
+                   [--concurrency=<concurrency>]
 
 Options
-    --host=<host>               server host [default: 127.0.0.1]
-    --port=<port>               server port [default: 5020]
-    --unit=<unit>...            units to test against [default: 0x1]
-    --requests=<requests>       requests to make (per client)
-                                [default: 1000]
-    --delay=<delay>             a delay between requests (per client)
-                                [default: 0]
-    --warmup=<warmup>           perform this numbe of requests before starting
-                                to record response times.
-                                [default: 0]
-    --target-dir=<target-dir>   directory to write result files to
-                                [default: ./results]
-    --table=<table>...          register tables to test against
-                                [default: 1]
+    --host=<host>                server host [default: 127.0.0.1]
+    --port=<port>                server port [default: 5020]
+    --unit=<unit>...             units to test against [default: 0x1]
+    --requests=<requests>        requests to make (per client)
+                                 [default: 1000]
+    --delay=<delay>              a delay between requests (per client)
+                                 [default: 0]
+    --warmup=<warmup>            perform this numbe of requests before starting
+                                 to record response times.
+                                 [default: 0]
+    --target-dir=<target-dir>    directory to write result files to
+                                 [default: ./results]
+    --table=<table>...           register tables to test against
+                                 [default: 1]
+    --concurrency=<concurrency>  The maximum concurrency level to run.
+                                 [default: 4]
 
 """
 import csv
@@ -108,10 +111,10 @@ def _run_single_client(client_id, host, port, units, results, N, delay, warmup, 
                                    measurements=measurements,
                                    errors=errors))
 
-def _benchmark_server(host, port, units, requests, delays, warmup, tables):
+def _benchmark_server(host, port, units, requests, delays, warmup, tables, concurrency):
     results = []
     for table in tables:
-        for concurrency in xrange(1,5):
+        for concurrency in xrange(1,concurrency+1):
             _log.info('Starting benchmarking at concurrency level %d', concurrency)
 
             for delay in delays:
@@ -227,10 +230,11 @@ def _validate_args(raw_args):
     args['warmup'] = int(raw_args['--warmup'])
     args['target_dir'] = raw_args['--target-dir']
     args['tables'] = map(lambda n: int(n) - 1, raw_args['--table'])
+    args['concurrency'] = int(raw_args['--concurrency'])
     return args
 
-def main(host, port, units, requests, delays, warmup, target_dir, tables):
-    results = _benchmark_server(host, port, units, requests, delays, warmup, tables)
+def main(host, port, units, requests, delays, warmup, target_dir, tables, concurrency):
+    results = _benchmark_server(host, port, units, requests, delays, warmup, tables, concurrency)
     _print_results(results)
     _write_results(results, target_dir)
 
