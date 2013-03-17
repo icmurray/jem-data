@@ -9,6 +9,7 @@ Usage:
                    [--with-throughput]
                    [--warmup=<warmup>]
                    [--target-dir=<target-dir>]
+                   [--table=<table>]...
 
 Options
     --host=<host>               server host [default: 127.0.0.1]
@@ -24,6 +25,8 @@ Options
                                 [default: 500]
     --target-dir=<target-dir>   directory to write result files to
                                 [default: ./results]
+    --table=<table>...          register tables to test against
+                                [default: 1]
 
 """
 import csv
@@ -53,7 +56,7 @@ ClientMeasurements = collections.namedtuple(
     'ClientMeasurements', 'client_id measurements errors')
         
 BenchmarkResult = collections.namedtuple(
-    'BenchmarkResult', 'concurrency delay client_measurements total_time')
+    'BenchmarkResult', 'concurrency delay table client_measurements total_time')
 
 def _choose_random_registers(table):
     '''
@@ -107,45 +110,47 @@ def _run_single_client(client_id, host, port, units, results, N, delay, warmup, 
                                    measurements=measurements,
                                    errors=errors))
 
-def _benchmark_server(host, port, units, requests, delays, warmup):
+def _benchmark_server(host, port, units, requests, delays, warmup, tables):
     results = []
-    for concurrency in xrange(1,5):
-        _log.info('Starting benchmarking at concurrency level %d', concurrency)
+    for table in tables:
+        for concurrency in xrange(1,5):
+            _log.info('Starting benchmarking at concurrency level %d', concurrency)
 
-        for delay in delays:
-            _log.info('Starting benchmarking with delay %f', delay)
+            for delay in delays:
+                _log.info('Starting benchmarking with delay %f', delay)
 
-            client_results = multiprocessing.Queue()
-            ps = []
-            for client_id in range(concurrency):
-                args = (client_id,
-                        host,
-                        port,
-                        units,
-                        client_results,
-                        requests,
-                        delay,
-                        warmup,
-                        registers.TABLE_1)
-                p = multiprocessing.Process(target=_run_single_client,
-                                            args = args)
-                ps.append(p)
+                client_results = multiprocessing.Queue()
+                ps = []
+                for client_id in range(concurrency):
+                    args = (client_id,
+                            host,
+                            port,
+                            units,
+                            client_results,
+                            requests,
+                            delay,
+                            warmup,
+                            registers.TABLES[table])
+                    p = multiprocessing.Process(target=_run_single_client,
+                                                args = args)
+                    ps.append(p)
 
-            start = time.time()
-            for p in ps:
-                p.start()
+                start = time.time()
+                for p in ps:
+                    p.start()
 
-            client_measurements = []
-            for _ in range(concurrency):
-                client_measurements.append(client_results.get())
+                client_measurements = []
+                for _ in range(concurrency):
+                    client_measurements.append(client_results.get())
 
-            total_time = time.time() - start
+                total_time = time.time() - start
 
-            results.append(BenchmarkResult(
-                concurrency = concurrency,
-                delay = delay,
-                client_measurements = client_measurements,
-                total_time = total_time))
+                results.append(BenchmarkResult(
+                    table = table + 1,
+                    concurrency = concurrency,
+                    delay = delay,
+                    client_measurements = client_measurements,
+                    total_time = total_time))
 
     return results
 
@@ -160,11 +165,11 @@ def _write_results(results, target_dir):
     f_out = open(filepath, 'wb')
     csv_out = csv.writer(f_out)
     _log.info("Writing results to %s", filepath)
-    csv_out.writerow(['delay', 'concurrency level', 'response time']) # header
+    csv_out.writerow(['table', 'delay', 'concurrency level', 'response time']) # header
     for result in results:
         ms = _get_all_measurements(result)
         for m in ms:
-            row = [result.delay, result.concurrency, m]
+            row = [result.table, result.delay, result.concurrency, m]
             csv_out.writerow(row)
     f_out.flush()
     f_out.close()
@@ -203,7 +208,8 @@ def _print_results(results):
         measurements = _get_all_measurements(result)
         errors = _get_all_errors(result)
 
-        print('Concurrency: %d; delay: %f; Avg response time: %f, Throughput: %f/sec, Number of errors: %d' % (
+        print('Table: %d; Concurrency: %d; delay: %f; Avg response time: %f, Throughput: %f/sec, Number of errors: %d' % (
+                result.table,
                 result.concurrency,
                 result.delay,
                 sum(measurements) / len(measurements),
@@ -223,12 +229,13 @@ def _validate_args(raw_args):
     args['with_throughput'] = raw_args['--with-throughput']
     args['warmup'] = int(raw_args['--warmup'])
     args['target_dir'] = raw_args['--target-dir']
+    args['tables'] = map(lambda n: int(n) - 1, raw_args['--table'])
     return args
 
-def main(host, port, units, requests, delays, with_throughput, warmup, target_dir):
+def main(host, port, units, requests, delays, with_throughput, warmup, target_dir, tables):
     if with_throughput:
         delays = list(set(delays).union(set([0])))
-    results = _benchmark_server(host, port, units, requests, delays, warmup)
+    results = _benchmark_server(host, port, units, requests, delays, warmup, tables)
     _print_results(results)
     _write_results(results, target_dir)
 
