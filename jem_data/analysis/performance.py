@@ -102,6 +102,10 @@ def _run_single_client(client_id, host, port, units, results, N, delay, warmup, 
         except jem_exceptions.JemException, e:
             errors.append(e)
             _log.warn('Client %d received error response: %s', client_id, e)
+        except Exception, e:
+            from pymodbus import exceptions as es
+            _log.error("Caught other exception: %s" % str(e))
+            _log.error("Is instance: %s", isinstance(e, es.ModbusException))
         finally:
             time.sleep(delay)
 
