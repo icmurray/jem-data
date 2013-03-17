@@ -28,6 +28,7 @@ Options
 """
 import csv
 import collections
+import itertools
 import logging
 import os
 import Queue
@@ -42,16 +43,11 @@ from pymodbus.client.sync import ModbusTcpClient as ModbusClient
 
 from jem_data.core import modbus
 import jem_data.core.exceptions as jem_exceptions
+from jem_data.diris import registers
 
 logging.basicConfig()
 _log = logging.getLogger()
 _log.setLevel(logging.INFO)
-
-#_REGISTERS = dict((addr, 2) for addr in range(0xC950, 51656, 1))
-_REGISTERS = dict((addr, 2) for addr in range(0xC550, 0xC588, 2))
-_MAX_NUMBER_OF_REGISTERS = min(120, len(_REGISTERS.keys()))
-#_MIN_NUMBER_OF_REGISTERS = 120
-_MIN_NUMBER_OF_REGISTERS = min(_MAX_NUMBER_OF_REGISTERS, _MAX_NUMBER_OF_REGISTERS)
 
 ClientMeasurements = collections.namedtuple(
     'ClientMeasurements', 'client_id measurements errors')
@@ -59,20 +55,29 @@ ClientMeasurements = collections.namedtuple(
 BenchmarkResult = collections.namedtuple(
     'BenchmarkResult', 'concurrency delay client_measurements total_time')
 
-def _choose_random_registers():
-    num_registers = random.randint(_MIN_NUMBER_OF_REGISTERS,
-                                   _MAX_NUMBER_OF_REGISTERS)
-    return random.sample(_REGISTERS.keys(), num_registers)
+def _choose_random_registers(table):
+    '''
+    Choose a (maximum) random range from the given table.
+    '''
+    addresses = sorted(table.keys())
+    max_start_address = max(addresses[0], addresses[-1] + table[addresses[-1]] - 120)
+    start_address = random.sample(
+            list(itertools.takewhile(lambda x: x <= max_start_address,
+                                     addresses)),
+            1)[0]
+    end_address = min(start_address + 120, addresses[-1])
+    return dict( (addr,table[addr]) for addr in xrange(start_address, end_address+1) \
+                                        if addr in table )
 
-def _make_random_request(client, units):
+def _make_random_request(client, units, table):
     unit = random.sample(units, 1)[0]
-    registers = dict( (addr, 2) for addr in _choose_random_registers())
+    registers = _choose_random_registers(table)
     start = time.time()
     response = modbus.read_registers(client, registers=registers, unit=unit)
     elapsed_time = time.time() - start
     return elapsed_time
 
-def _run_single_client(client_id, host, port, units, results, N, delay, warmup):
+def _run_single_client(client_id, host, port, units, results, N, delay, warmup, table):
     _log.info('Client %d connecting to %s (%s)', client_id, host, port)
     client = ModbusClient(host, port=port)
     client.connect()
@@ -85,7 +90,7 @@ def _run_single_client(client_id, host, port, units, results, N, delay, warmup):
         if N >= 1000 and i % (N/10) == 0 and i > 0:
             _log.info('Client %d %.0f%% complete', client_id, 100.0*i/N)
         try:
-            m = _make_random_request(client, units)
+            m = _make_random_request(client, units, table)
             if i >= warmup or N <= warmup:
                 if i == warmup:
                     _log.info('Client %d warmup complete.', client_id)
@@ -120,7 +125,8 @@ def _benchmark_server(host, port, units, requests, delays, warmup):
                         client_results,
                         requests,
                         delay,
-                        warmup)
+                        warmup,
+                        registers.TABLE_1)
                 p = multiprocessing.Process(target=_run_single_client,
                                             args = args)
                 ps.append(p)
