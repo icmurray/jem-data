@@ -47,9 +47,11 @@ logging.basicConfig()
 _log = logging.getLogger()
 _log.setLevel(logging.INFO)
 
-_REGISTERS = dict((addr, 2) for addr in range(0xC550, 0xC588, 2))
-_MAX_NUMBER_OF_REGISTERS = len(_REGISTERS.keys())
-_MIN_NUMBER_OF_REGISTERS = min(10, _MAX_NUMBER_OF_REGISTERS)
+_REGISTERS = dict((addr, 2) for addr in range(0xC950, 51656, 1))
+#_REGISTERS = dict((addr, 2) for addr in range(0xC550, 0xC588, 2))
+_MAX_NUMBER_OF_REGISTERS = min(120, len(_REGISTERS.keys()))
+_MIN_NUMBER_OF_REGISTERS = 120
+#_MIN_NUMBER_OF_REGISTERS = min(_MAX_NUMBER_OF_REGISTERS, _MAX_NUMBER_OF_REGISTERS)
 
 ClientMeasurements = collections.namedtuple(
     'ClientMeasurements', 'client_id measurements errors')
