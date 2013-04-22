@@ -90,6 +90,8 @@ def main(host, port, delay, unit, table_num):
                         for addr in DEMO_REGISTERS.keys() \
                         if addr in register_widths)
 
+    label_width = max([len(label) for label in DEMO_REGISTERS.values()]) + 1
+
     while True:
     
         start = time.time()
@@ -99,18 +101,24 @@ def main(host, port, delay, unit, table_num):
     
         response_time = time.time() - start
     
+        print "Request Times:"
+
         min_response_time = min(min_response_time, response_time)
         max_response_time = max(max_response_time, response_time)
         sum_response_time += response_time
         N += 1
     
-        print"Min: %f\tMax: %f\tAvg: %f" % (min_response_time, max_response_time, (sum_response_time/N))
+        print "Min".rjust(label_width) + ": " + str(min_response_time)
+        print "Max".rjust(label_width) + ": " + str(max_response_time)
+        print "Avg".rjust(label_width) + ": " + str(sum_response_time/N)
 
+        print "Response Values:"
         for addr in sorted(registers.keys()):
-            print u"{label:>45s}: {value:f}".format(
+            print (u"{label:>" + str(label_width) + u"s}: {value:f}").format(
                     label=register_labels[addr],
                     value=response.read_register(addr))
 
+        print
         time.sleep(delay)
     client.close()
 
