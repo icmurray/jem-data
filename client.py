@@ -19,6 +19,7 @@ Options
 
 import docopt
 import logging
+import os
 import time
 
 from pymodbus.client.sync import ModbusTcpClient as ModbusClient
@@ -100,7 +101,9 @@ def main(host, port, delay, unit, table_num):
                                          unit=unit)
     
         response_time = time.time() - start
-    
+
+        os.system('clear')
+
         print "Request Times:"
 
         min_response_time = min(min_response_time, response_time)
