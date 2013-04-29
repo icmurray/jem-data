@@ -37,8 +37,6 @@ def read_registers(client, unit, registers):
     contruct the composite value -- ie in the example above, when asked for
     the value of the register named `0xC550`, the response will transparently
     also read the value in `0xC551` and combine the two values.
-
-    Returns a Deferred which contains the result of the request.
     '''
 
     if not registers:
@@ -76,6 +74,9 @@ def read_registers(client, unit, registers):
 
     elif isinstance(response, pdu.ExceptionResponse):
         raise jem_exceptions._wrap_exception_response(response)
+
+    elif response is None:
+        raise jem_exceptions.JemEmptyResponse()
 
     else:
         response = RegisterResponse(response, registers)

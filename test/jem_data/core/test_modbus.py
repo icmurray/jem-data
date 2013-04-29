@@ -1,6 +1,7 @@
 import mock
 import nose.tools as nose
 
+import jem_data.core.exceptions as jem_exceptions
 import jem_data.core.modbus as modbus
 
 def test_read_registers_requests_the_correct_address_range():
@@ -39,6 +40,18 @@ def test_read_registers_includes_word_size_when_calculating_range():
                        modbus.read_registers,
                        client, unit=0x01, registers=registers)
     nose.assert_equal(client.read_holding_registers.call_count, 0)
+
+def test_read_registers_raises_exception_on_empty_response():
+    registers = {
+        1: 2
+    }
+
+    client = mock.Mock()
+    client.read_holding_registers.return_value = None
+
+    nose.assert_raises(jem_exceptions.JemEmptyResponse,
+                       modbus.read_registers,
+                       client, unit=0x01, registers=registers)
 
 def test_read_register_range_exactly_right_edge_case():
     registers = {

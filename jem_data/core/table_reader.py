@@ -9,9 +9,11 @@ import multiprocessing
 import time
 
 from pymodbus.client.sync import ModbusTcpClient as ModbusClient
+import pymodbus.exceptions
 
 import jem_data.diris as diris
 import jem_data.core.domain as domain
+import jem_data.core.exceptions as jem_exceptions
 import jem_data.core.messages as messages
 import jem_data.core.modbus as modbus
 
@@ -35,10 +37,14 @@ def _run(in_q, out_q, client):
     """
 
     with contextlib.closing(client) as conn:
-        conn.connect()
 
         while True:
-            _read_table(in_q, out_q, conn)
+            try:
+                _read_table(in_q, out_q, conn)
+            except jem_exceptions.JemException, e:
+                print e
+            except pymodbus.exceptions.ConnectionException:
+                pass
 
 def _read_table(in_q, out_q, conn):
     msg = in_q.get()

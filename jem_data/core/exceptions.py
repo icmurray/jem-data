@@ -7,6 +7,10 @@ class JemExceptionResponse(JemException):
         super(JemExceptionResponse, self).__init__(str(response))
         self.response = response
 
+class JemEmptyResponse(JemException):
+    def __init__(self):
+        super(JemEmptyResponse, self).__init__("No response from server")
+
 def _wrap_exception_response(response):
     '''Wrap a given pymodbus ExceptionResponse as a throwable exception.'''
     return JemExceptionResponse(response)
