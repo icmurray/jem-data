@@ -38,20 +38,20 @@ def main():
 
     table_reader.start_readers(gateway_info, request_queue, results_queue)
 
-    def request_gen(req_Q):
+    def request_gen(req_Q, gateway_info):
         import time
 
         while True:
             for table in xrange(1,2):
                 for unit in [0x01, 0x02, 0x03]:
                     req = messages.ReadTableMsg(
-                            device_id = domain.DeviceId(1L, unit),
+                            device_id = domain.Device(gateway_info, unit),
                             table_id = table)
                     req_Q.put(req)
             time.sleep(0.5)
 
     p = multiprocessing.Process(target=request_gen,
-                                args=(request_queue,))
+                                args=(request_queue, gateway_info))
     p.start()
 
     def print_response(res_Q):

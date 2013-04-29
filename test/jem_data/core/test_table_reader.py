@@ -8,7 +8,7 @@ import jem_data.core.table_reader as table_reader
 def test_read_small_table():
     in_q = mock.Mock()
     in_q.get.return_value = messages.ReadTableMsg(
-            device_id = domain.DeviceId(1L, 0xFF),
+            device_id = domain.Device(mock.Mock(), 0xFF),
             table_id = 1)
 
     out_q = mock.Mock()
@@ -22,7 +22,7 @@ def test_read_small_table():
 def test_read_large_table():
     in_q = mock.Mock()
     in_q.get.return_value = messages.ReadTableMsg(
-            device_id = domain.DeviceId(1L, 0xFF),
+            device_id = domain.Device(mock.Mock(), 0xFF),
             table_id = 6)
 
     out_q = mock.Mock()

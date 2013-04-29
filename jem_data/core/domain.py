@@ -6,9 +6,9 @@ Definitions of domain models used by the system.
 
 import collections
 
-DeviceId = collections.namedtuple(
-        'DeviceId',
-        'gateway_id unit')
+Device = collections.namedtuple(
+        'Device',
+        'gateway unit')
 
 Gateway = collections.namedtuple(
         'Gateway',

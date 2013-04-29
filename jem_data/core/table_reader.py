@@ -11,6 +11,7 @@ import time
 from pymodbus.client.sync import ModbusTcpClient as ModbusClient
 
 import jem_data.diris as diris
+import jem_data.core.domain as domain
 import jem_data.core.messages as messages
 import jem_data.core.modbus as modbus
 
