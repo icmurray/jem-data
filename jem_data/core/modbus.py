@@ -8,6 +8,8 @@ import jem_data.core.exceptions as jem_exceptions
 
 _log = logging.getLogger(__name__)
 
+_VALID_REGISTER_RANGE = 125
+
 def read_registers(client, unit, registers):
     '''Make a request for the given registers.
 
@@ -49,7 +51,7 @@ def read_registers(client, unit, registers):
     max_register = max(registers.keys())
     register_range = max_register + registers[max_register] - min_register
 
-    if register_range > 125:
+    if register_range > _VALID_REGISTER_RANGE:
         raise InvalidModbusRangeException(register_range)
 
     # NOTE - the modbus PDU expects that requests for registers addressed as
@@ -79,6 +81,40 @@ def read_registers(client, unit, registers):
         response = RegisterResponse(response, registers)
     
     return response
+
+def split_registers(registers):
+    """
+    Splits the given registers into multiple register dicts which all have
+    a valid modbus register range (of <= 125).
+    """
+
+    for width in registers.values():
+        if width > _VALID_REGISTER_RANGE:
+            raise ValueError("Invalid register width: %d" % width)
+
+    working_copy = registers.copy()
+    valid_registers = []
+
+    current_range_start = min(working_copy.keys())
+    current_range_end   = current_range_start + _VALID_REGISTER_RANGE
+
+    while working_copy:
+        current_range = dict(
+            (addr, width) for addr, width in working_copy.items() \
+                if current_range_start <= addr and \
+                   addr + width <= current_range_end
+        )
+
+        valid_registers.append(current_range)
+        for addr in current_range:
+            working_copy.pop(addr)
+
+        if working_copy:
+            current_range_start = min(working_copy.keys())
+            current_range_end   = current_range_start + _VALID_REGISTER_RANGE
+
+    return valid_registers
+
 
 class RegisterResponse(object):
     '''Wraps a pymodbus response object to provide access to the registers

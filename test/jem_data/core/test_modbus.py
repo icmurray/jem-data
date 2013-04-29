@@ -66,6 +66,58 @@ def test_access_value_of_a_single_register_value():
     result = jem_response.read_register(0xC553)
     nose.assert_equal(result, 0x22)
 
+def test_split_registers_simple_case():
+    registers = {
+            0xC550: 2,
+            0xC560: 1,
+    }
+
+    result = modbus.split_registers(registers)
+    nose.assert_equal(result, [registers])
+
+def test_split_registers_simple_split():
+    registers = {
+            0xC550: 2,
+            0xC560: 1,
+            0xC650: 2,
+    }
+
+    result = modbus.split_registers(registers)
+    expected = [{0xC550: 2, 0XC560: 1},
+                {0xC650: 2           }]
+    nose.assert_equal(result, expected)
+
+def test_split_registers_accounts_for_width():
+    registers = {
+            0xC550: 1,
+            0xC551: 1,
+            0xC552: 124,
+            0xC5CE: 1,
+    }
+
+    result = modbus.split_registers(registers)
+    expected = [{0xC550: 1,   0xC551: 1},
+                {0xC552: 124, 0xC5CE: 1}]
+    nose.assert_equal(result, expected)
+
+def test_split_registers_handles_boundary_conditions():
+    registers = {
+            0xC550: 1,
+            0xC551: 124,
+    }
+
+    result = modbus.split_registers(registers)
+    expected = [{0xC550: 1,   0xC551: 124}]
+    nose.assert_equal(result, expected)
+
+def test_split_registers_invalid_widths():
+    registers = {
+            0xC550: 126
+    }
+
+    nose.assert_raises(ValueError,
+                       modbus.split_registers,
+                       registers)
 #---------------------------------------------------------------------------# 
 # Fixture data and functions
 #---------------------------------------------------------------------------# 
