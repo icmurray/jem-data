@@ -25,6 +25,45 @@ MockResult = collections.namedtuple('MockResult',
 
 def main():
 
+    import jem_data.core.domain as domain
+    import jem_data.core.messages as messages
+    import jem_data.core.table_reader as table_reader
+
+    request_queue = multiprocessing.Queue()
+    results_queue = multiprocessing.Queue()
+
+    gateway_info = domain.Gateway(
+            host="127.0.0.1",
+            port=5020)
+
+    table_reader.start_readers(gateway_info, request_queue, results_queue)
+
+    def request_gen(req_Q):
+        import time
+
+        while True:
+            for table in xrange(1,2):
+                for unit in [0x01, 0x02, 0x03]:
+                    req = messages.ReadTableMsg(
+                            device_id = domain.DeviceId(1L, unit),
+                            table_id = table)
+                    req_Q.put(req)
+            time.sleep(0.5)
+
+    p = multiprocessing.Process(target=request_gen,
+                                args=(request_queue,))
+    p.start()
+
+    def print_response(res_Q):
+        while True:
+            res = res_Q.get()
+            print(res)
+
+    p2 = multiprocessing.Process(target=print_response, args=(results_queue,))
+    p2.start()
+
+def main_mock():
+
     _setup_mongo_collections()
 
     q1 = multiprocessing.Queue()

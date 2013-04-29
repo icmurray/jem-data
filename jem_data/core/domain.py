@@ -10,3 +10,6 @@ DeviceId = collections.namedtuple(
         'DeviceId',
         'gateway_id unit')
 
+Gateway = collections.namedtuple(
+        'Gateway',
+        'host port')

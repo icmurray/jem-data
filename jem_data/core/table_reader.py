@@ -37,7 +37,7 @@ def _run(in_q, out_q, client):
         conn.connect()
 
         while True:
-            _read_table(in_q, out_q)
+            _read_table(in_q, out_q, conn)
 
 def _read_table(in_q, out_q, conn):
     msg = in_q.get()
