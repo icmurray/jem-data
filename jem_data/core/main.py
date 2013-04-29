@@ -50,14 +50,6 @@ def main():
 
     table_request_manager.start_manager(qs, config)
 
-    def print_response(res_Q):
-        while True:
-            res = res_Q.get()
-            print "Got one"
-
-    p2 = multiprocessing.Process(target=print_response, args=(results_queue,))
-    p2.start()
-
     _setup_mongo_collections()
 
     mongo_writer = multiprocessing.Process(
