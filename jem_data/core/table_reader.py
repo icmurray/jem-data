@@ -54,7 +54,7 @@ def _read_table(in_q, out_q, conn):
                 device_id = msg.device_id,
                 table_id = msg.table_id,
                 values = _read_values_from_response(response, msg.table_id),
-                timing_info = (start_time, end_time),
+                timing_info = domain.TimingInfo(start_time, end_time),
                 error = None,
                 request_info = None)
 

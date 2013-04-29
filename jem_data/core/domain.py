@@ -13,3 +13,10 @@ Device = collections.namedtuple(
 Gateway = collections.namedtuple(
         'Gateway',
         'host port')
+
+class TimingInfo(collections.namedtuple('TimingInfo', 'start end')):
+    __slots__ = ()
+
+    @property
+    def elapsed_time(self):
+        self.end - self.start
