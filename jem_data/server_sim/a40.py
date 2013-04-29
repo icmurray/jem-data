@@ -4,6 +4,8 @@ import time
 
 import pymodbus.datastore as datastore
 
+import jem_data.diris.registers as diris_registers
+
 _log = logging.getLogger(__name__)
 
 # Some of the registers that we simulate
@@ -22,16 +24,10 @@ def create():
         di = datastore.ModbusSequentialDataBlock(0, [1]),
         co = datastore.ModbusSequentialDataBlock(0, [1]),
         ir = datastore.ModbusSequentialDataBlock(0, [1]),
-        hr = A40HoldingRegistersDataBlock({
-           _HOUR_METER: 0x0,
-           _PHASE_CURRENT_1: 0x0,
-           _PHASE_CURRENT_2: 0x0,
-           _PHASE_CURRENT_3: 0x0,
-        })
+        hr = A40HoldingRegistersDataBlock(diris_registers.ALL)
     )
 
-_CT_AND_VT_REGISTERS = dict((addr, 2) for addr in range(0xC550, 0xC588, 2))
-_ALL_REGISTERS = _CT_AND_VT_REGISTERS
+_ALL_REGISTERS = diris_registers.ALL
 
 class A40SlaveContext(datastore.context.ModbusSlaveContext):
     '''
@@ -104,7 +100,7 @@ class A40HoldingRegistersDataBlock(datastore.ModbusSparseDataBlock):
             from twisted.internet import task
             self._start_time = time.time()
             l = task.LoopingCall(self._step)
-            l.start(0.1)     # in seconds.
+            l.start(1.0)     # in seconds.
 
     def _expand_register_value(self, addr, value):
         '''Returns a dict of register addresses to register values.
@@ -133,12 +129,12 @@ class A40HoldingRegistersDataBlock(datastore.ModbusSparseDataBlock):
         
         # The A40 updates its hour meter every 1/100-th of an hour, ie
         # every 36 seconds.
-        diris_time = int(elapsed_time / 36.0)
+        diris_time = int(elapsed_time / 3.6)
         self.setValues(_HOUR_METER, self._expand_register_value(_HOUR_METER, diris_time))
         
-        self._update_sinusoidal_register(_PHASE_CURRENT_1, 240.0, 0.20, elapsed_time)
-        self._update_sinusoidal_register(_PHASE_CURRENT_2, 120.0, 0.60, elapsed_time)
-        self._update_sinusoidal_register(_PHASE_CURRENT_3, 100.0, 0.80, elapsed_time)
+        self._update_sinusoidal_register(_PHASE_CURRENT_1, 0.05, 0.20, elapsed_time)
+        self._update_sinusoidal_register(_PHASE_CURRENT_2, 0.02, 0.60, elapsed_time)
+        self._update_sinusoidal_register(_PHASE_CURRENT_3, 0.01, 0.80, elapsed_time)
 
     def _update_sinusoidal_register(self, addr, amplitude, frequency, now):
         v = int(amplitude * math.sin(2.0 * math.pi * frequency * now) * 100.0) + int(amplitude * 100.0)
