@@ -26,8 +26,8 @@ MockResult = collections.namedtuple('MockResult',
 def main():
 
     import jem_data.core.domain as domain
-    import jem_data.core.messages as messages
     import jem_data.core.table_reader as table_reader
+    import jem_data.core.table_request_manager as table_request_manager
 
     request_queue = multiprocessing.Queue()
     results_queue = multiprocessing.Queue()
@@ -38,21 +38,17 @@ def main():
 
     table_reader.start_readers(gateway_info, request_queue, results_queue)
 
-    def request_gen(req_Q, gateway_info):
-        import time
+    qs = {
+            gateway_info: request_queue
+    }
 
-        while True:
-            for table in xrange(1,2):
-                for unit in [0x01, 0x02, 0x03]:
-                    req = messages.ReadTableMsg(
-                            device_id = domain.Device(gateway_info, unit),
-                            table_id = table)
-                    req_Q.put(req)
-            time.sleep(0.5)
+    config = {}
+    for table in xrange(1,4):
+        for unit in [0x01, 0x02, 0x03]:
+            device = domain.Device(gateway_info, unit)
+            config[(device, table)] = 0.5 * table
 
-    p = multiprocessing.Process(target=request_gen,
-                                args=(request_queue, gateway_info))
-    p.start()
+    table_request_manager.start_manager(qs, config)
 
     def print_response(res_Q):
         while True:
