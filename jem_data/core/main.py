@@ -43,42 +43,28 @@ def main():
     }
 
     config = {}
-    for table in xrange(1,4):
-        for unit in [0x01, 0x02, 0x03]:
+    for table in xrange(1,3):
+        for unit in [0x01, 0x02]:
             device = domain.Device(gateway_info, unit)
-            config[(device, table)] = 0.5 * table
+            config[(device, table)] = 0.5
 
     table_request_manager.start_manager(qs, config)
 
     def print_response(res_Q):
         while True:
             res = res_Q.get()
-            print(res)
+            print "Got one"
 
     p2 = multiprocessing.Process(target=print_response, args=(results_queue,))
     p2.start()
 
-def main_mock():
-
     _setup_mongo_collections()
 
-    q1 = multiprocessing.Queue()
-    q2 = multiprocessing.Queue()
-    mongo_archive_writer = multiprocessing.Process(
+    mongo_writer = multiprocessing.Process(
             target=mongo_sink.mongo_writer,
-            args=(q1, 'archive', mongo_config))
+            args=(results_queue, ['archive', 'realtime'], mongo_config))
 
-    mongo_stream_writer = multiprocessing.Process(
-            target=mongo_sink.mongo_writer,
-            args=(q2, 'realtime', mongo_config))
-
-    queue_writer = multiprocessing.Process(
-            target=_simple_queue_writer,
-            args=(q1,q2))
-
-    mongo_archive_writer.start()
-    mongo_stream_writer.start()
-    queue_writer.start()
+    mongo_writer.start()
 
 def _setup_mongo_collections():
     connection = pymongo.MongoClient(mongo_config.host, mongo_config.port)
@@ -86,28 +72,9 @@ def _setup_mongo_collections():
 
     if 'archive' not in db.collection_names():
         db.create_collection('archive')
-        db['archive'].create_index([('address',   pymongo.ASCENDING),
-                                    ('timestamp', pymongo.ASCENDING)],
-                                   unique=False,
-                                   background=False)
-
 
     if 'realtime' not in db.collection_names():
         db.create_collection('realtime', size=1024*1024*100, capped=True, max=100)
-
-def _simple_queue_writer(*qs):
-
-    while True:
-        result = MockResult(
-                device_id='192.168.0.101:0xFF',
-                table_id=1,
-                timestamp=datetime.datetime.now(),
-                values=[(addr, random.gauss(10.0, 1.5)) \
-                            for addr in random.sample(
-                                registers.TABLE_1.keys(), 30)])
-        for q in qs:
-            q.put(result)
-        time.sleep(0.001)
 
 if __name__ == '__main__':
     main()
