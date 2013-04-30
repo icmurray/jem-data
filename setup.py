@@ -19,5 +19,6 @@ setup(
         'wsgiref==0.1.2',
         'zope.interface==4.0.3',
         'docopt==0.6.1',
+        'flask==0.9'
     ],
 )
