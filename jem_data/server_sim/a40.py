@@ -1,5 +1,5 @@
-import math
 import logging
+import random
 import time
 
 import pymodbus.datastore as datastore
@@ -10,9 +10,11 @@ _log = logging.getLogger(__name__)
 
 # Some of the registers that we simulate
 _HOUR_METER = 0xC550
+_FREQUENCY = 0xC55E
 _PHASE_CURRENT_1 = 0xC560
-_PHASE_CURRENT_2 = 0xC562
-_PHASE_CURRENT_3 = 0xC564
+_NEUTRAL_CURRENT = 0xC566
+
+_INITIAL_REGISTER_VALUES = dict((k,0) for k in diris_registers.ALL)
 
 def create():
     '''Create a new A40 slave
@@ -24,7 +26,7 @@ def create():
         di = datastore.ModbusSequentialDataBlock(0, [1]),
         co = datastore.ModbusSequentialDataBlock(0, [1]),
         ir = datastore.ModbusSequentialDataBlock(0, [1]),
-        hr = A40HoldingRegistersDataBlock(diris_registers.ALL)
+        hr = A40HoldingRegistersDataBlock(_INITIAL_REGISTER_VALUES)
     )
 
 _ALL_REGISTERS = diris_registers.ALL
@@ -132,10 +134,19 @@ class A40HoldingRegistersDataBlock(datastore.ModbusSparseDataBlock):
         diris_time = int(elapsed_time / 3.6)
         self.setValues(_HOUR_METER, self._expand_register_value(_HOUR_METER, diris_time))
         
-        self._update_sinusoidal_register(_PHASE_CURRENT_1, 0.05, 0.20, elapsed_time)
-        self._update_sinusoidal_register(_PHASE_CURRENT_2, 0.02, 0.60, elapsed_time)
-        self._update_sinusoidal_register(_PHASE_CURRENT_3, 0.01, 0.80, elapsed_time)
+        self._update_varying_register(_PHASE_CURRENT_1)
+        self._update_varying_register(_FREQUENCY)
+        self._update_varying_register(_NEUTRAL_CURRENT)
 
-    def _update_sinusoidal_register(self, addr, amplitude, frequency, now):
-        v = int(amplitude * math.sin(2.0 * math.pi * frequency * now) * 100.0) + int(amplitude * 100.0)
-        self.setValues(addr, self._expand_register_value(addr, v))
+    def _update_varying_register(self, addr, last_values={}):
+        if addr not in last_values:
+            last_values[addr] = 10
+        else:
+            p = random.randint(0,100)
+            if p < 5:
+                last_values[addr] += 1
+            elif p < 10:
+                last_values[addr] -= 1
+        self.setValues(addr,
+                       self._expand_register_value(addr, last_values[addr]))
+
