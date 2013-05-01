@@ -53,11 +53,11 @@ def _read_table(in_q, out_q, conn):
         start_time = time.time()
         response = modbus.read_registers(conn,
                                          registers=request,
-                                         unit=msg.device_id.unit)
+                                         unit=msg.device.unit)
         end_time = time.time()
 
         result = messages.ResponseMsg(
-                device_id = msg.device_id,
+                device = msg.device,
                 table_id = msg.table_id,
                 values = _read_values_from_response(response, msg.table_id),
                 timing_info = domain.TimingInfo(start_time, end_time),

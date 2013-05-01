@@ -38,7 +38,7 @@ def mongo_writer(q, collection_names, mongo_config):
 def _split_result(result):
     '''Splits a modbus result to a list of MongoMessage instances'''
     return [ MongoMessage(
-                device = result.device_id,
+                device = result.device,
                 table = result.table_id,
                 timing_info = result.timing_info,
                 address = address,

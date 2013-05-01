@@ -21,7 +21,7 @@ mongo_config=mongo_sink.MongoConfig(
         database='jem-data')
 
 MockResult = collections.namedtuple('MockResult',
-        'device_id table_id timestamp values')
+        'device table_id timestamp values')
 
 def main():
 

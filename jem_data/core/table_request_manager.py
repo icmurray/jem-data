@@ -53,7 +53,7 @@ def _push_request(table, queues):
     device, table_id = table
     q = queues[device.gateway]
     req = messages.ReadTableMsg(
-            device_id = device,
+            device = device,
             table_id = table_id)
     q.put(req)
 
