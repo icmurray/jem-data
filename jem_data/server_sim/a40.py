@@ -131,7 +131,7 @@ class A40HoldingRegistersDataBlock(datastore.ModbusSparseDataBlock):
         
         # The A40 updates its hour meter every 1/100-th of an hour, ie
         # every 36 seconds.
-        diris_time = int(elapsed_time / 3.6)
+        diris_time = int(elapsed_time / 36)
         self.setValues(_HOUR_METER, self._expand_register_value(_HOUR_METER, diris_time))
         
         self._update_varying_register(_PHASE_CURRENT_1)
@@ -147,6 +147,7 @@ class A40HoldingRegistersDataBlock(datastore.ModbusSparseDataBlock):
                 last_values[addr] += 1
             elif p < 10:
                 last_values[addr] -= 1
+
         self.setValues(addr,
                        self._expand_register_value(addr, last_values[addr]))
 
