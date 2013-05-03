@@ -44,7 +44,8 @@ def main():
 
     config = {}
     for table in xrange(1,3):
-        for unit in [0x01, 0x02]:
+        for unit in [0x01]:
+        #for unit in [0x01, 0x02]:
             device = domain.Device(gateway_info, unit)
             config[(device, table)] = 0.5
 
