@@ -7,6 +7,7 @@
 import collections
 import heapq
 import multiprocessing
+import Queue
 import time
 
 import jem_data.core.messages as messages
@@ -19,6 +20,7 @@ class TableRequestManager(multiprocessing.Process):
         self._config = config.copy()
         self._instructions = instructions
         self._tasks = []
+        self._sending_requests = True
 
     def run(self):
         if not self._config:
@@ -35,6 +37,12 @@ class TableRequestManager(multiprocessing.Process):
             (_, task) = heapq.heappop(self._tasks)
             self._run_task(task)
 
+    def stop_requests(self):
+        self._instructions.put(_StopRequests())
+
+    def resume_requests(self):
+        self._instructions.put(_ResumeRequests())
+
     def _run_task(self, task):
         if isinstance(task, _PushTableRequestTask):
             self._run_push_table_request_task(task)
@@ -45,15 +53,31 @@ class TableRequestManager(multiprocessing.Process):
 
     def _run_push_table_request_task(self, task):
         device, table_id = task.device, task.table_id
-        q = self._queues[device.gateway]
-        req = messages.ReadTableMsg(
-                device = device,
-                table_id = table_id)
-        q.put(req)
+        if self._sending_requests:
+            q = self._queues[device.gateway]
+            req = messages.ReadTableMsg(
+                    device = device,
+                    table_id = table_id)
+            q.put(req)
         self._enqueue_push_table_request_task((device, table_id))
 
     def _run_read_instructions_task(self, task):
-        self._enqueue_read_instructions_task()
+        try:
+            while True:
+                instruction = self._instructions.get(block=False)
+                self._run_instruction(instruction)
+        except Queue.Empty:
+            pass
+        finally:
+            self._enqueue_read_instructions_task()
+
+    def _run_instruction(self, instruction):
+        if isinstance(instruction, _StopRequests):
+            self._sending_requests = False
+        elif isinstance(instruction, _ResumeRequests):
+            self._sending_requests = True
+        else:
+            raise ValueError, "Unknown Instruction Type: %s" % instruction
 
     def _enqueue_push_table_request_task(self, table, now=None):
         task = _PushTableRequestTask(*table)
@@ -74,6 +98,12 @@ class _ReadInstructionsTask(object):
 _PushTableRequestTask = collections.namedtuple(
         '_PushTableRequestTask',
         'device table_id')
+
+class _StopRequests(object):
+    __slots__ = ()
+
+class _ResumeRequests(object):
+    __slots__ = ()
 
 def start_manager(queues, config):
     """

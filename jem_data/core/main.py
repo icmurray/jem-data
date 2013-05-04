@@ -49,7 +49,7 @@ def main():
             device = domain.Device(gateway_info, unit)
             config[(device, table)] = 0.5
 
-    table_request_manager.start_manager(qs, config)
+    manager = table_request_manager.start_manager(qs, config)
 
     _setup_mongo_collections()
 
