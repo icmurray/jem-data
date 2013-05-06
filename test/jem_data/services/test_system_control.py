@@ -54,4 +54,10 @@ def test_update_with_valid_data():
 
     db.devices.delete_all.assert_called_once_with()
     db.devices.insert.assert_called_once_with([device])
+    db.devices.all.assert_called_once_with()
 
+def test_attached_devices():
+    db = mock.Mock()
+    system_control = services.SystemControlService(db)
+    system_control.attached_devices()
+    db.devices.all.assert_called_once_with()

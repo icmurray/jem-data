@@ -1,5 +1,8 @@
+import collections
+
 import pymongo
 
+import jem_data.core.domain as domain
 import jem_data.util as util
 
 class DataAccessLayer(object):
@@ -21,3 +24,14 @@ class DataRepository(object):
     def insert(self, devices):
         self._collection.insert(map(util.deep_asdict, devices))
 
+    def all(self):
+        devices = []
+        for device in self._collection.find():
+            gateway = domain.Gateway(
+                host=device['gateway']['host'],
+                port=device['gateway']['port'])
+
+            devices.append(domain.Device(
+                unit=device['unit'],
+                gateway=gateway))
+        return devices

@@ -33,11 +33,11 @@ class SystemControlService(object):
     def stop(self):
         self._table_request_manager.stop_requests()
 
-    def attached_gateways(self):
+    def attached_devices(self):
         '''Returns the list of `Device`s that the system is currently
         configured with
         '''
-        return []
+        return self._db.devices.all()
 
     def update_devices(self, devices):
         '''Updates the configured devices in bulk.
@@ -49,6 +49,7 @@ class SystemControlService(object):
             self._validate_device(d)
         self._db.devices.delete_all()
         self._db.devices.insert(devices)
+        return self.attached_devices()
 
     def _validate_device(self, device):
         if not isinstance(device.unit, int):
