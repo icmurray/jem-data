@@ -20,7 +20,7 @@ class TableRequestManager(multiprocessing.Process):
         self._config = config.copy()
         self._instructions = instructions
         self._tasks = []
-        self._sending_requests = True
+        self._sending_requests = False
 
     def run(self):
         if not self._config:

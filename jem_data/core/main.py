@@ -23,7 +23,7 @@ mongo_config=mongo_sink.MongoConfig(
 MockResult = collections.namedtuple('MockResult',
         'device table_id timestamp values')
 
-def main():
+def setup_system():
 
     import jem_data.core.domain as domain
     import jem_data.core.table_reader as table_reader
@@ -58,6 +58,12 @@ def main():
             args=(results_queue, ['archive', 'realtime'], mongo_config))
 
     mongo_writer.start()
+
+    return manager
+
+def main():
+    manager = setup_system()
+    manager.resume_requests()
 
 def _setup_mongo_collections():
     connection = pymongo.MongoClient(mongo_config.host, mongo_config.port)
