@@ -11,7 +11,7 @@ import time
 from pymodbus.client.sync import ModbusTcpClient as ModbusClient
 import pymodbus.exceptions
 
-import jem_data.diris as diris
+import jem_data.diris.registers as diris_registers
 import jem_data.core.domain as domain
 import jem_data.core.exceptions as jem_exceptions
 import jem_data.core.messages as messages
@@ -67,13 +67,13 @@ def _read_table(in_q, out_q, conn):
         out_q.put(result)
 
 def _table_requests(table_id):
-    registers = diris.registers.TABLES[table_id - 1]
+    registers = diris_registers.TABLES[table_id - 1]
     return modbus.split_registers(registers)
 
 def _read_values_from_response(response, table_id):
     """
     Returns a tuple of 2-tuples of (address, value) pairs.
     """
-    requested_registers = diris.registers.TABLES[table_id - 1]
+    requested_registers = diris_registers.TABLES[table_id - 1]
     return tuple( (addr, response.read_register(addr)) \
                         for addr in requested_registers.keys() )
