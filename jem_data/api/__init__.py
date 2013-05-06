@@ -1,8 +1,6 @@
 import flask
 
-import jem_data.core.main as main
-
-def app_factory(setup_system=main.setup_system):
+def app_factory(system_control_service):
     app = flask.Flask(__name__)
     app.config.from_pyfile('../../default.cfg')
     app.config.from_envvar('JEMDATA_SETTINGS', silent=True)
@@ -10,6 +8,6 @@ def app_factory(setup_system=main.setup_system):
     import jem_data.api.system_control.views as system_control
     app.register_blueprint(system_control.system_control)
 
-    app.setup_system = setup_system
+    app.system_control_service = system_control_service
 
     return app

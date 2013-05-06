@@ -1,33 +1,37 @@
-'''Main application entry point'''
-
-import collections
-import datetime
-import logging
 import multiprocessing
-import random
-import time
 
 import pymongo
 
+import jem_data.core.domain as domain
 import jem_data.core.mongo_sink as mongo_sink
-import jem_data.diris.registers as registers
-
-logging.basicConfig()
-_log = logging.getLogger(__name__)
+import jem_data.core.table_reader as table_reader
+import jem_data.core.table_request_manager as table_request_manager
 
 mongo_config=mongo_sink.MongoConfig(
         host='127.0.0.1',
         port=27017,
         database='jem-data')
 
-MockResult = collections.namedtuple('MockResult',
-        'device table_id timestamp values')
+class SystemControlService(object):
+    """
+    The service level api.
+    
+    Use an instance of this class to control the system's behaviour.
+    """
 
-def setup_system():
+    def __init__(self):
+        self._table_request_manager = None
 
-    import jem_data.core.domain as domain
-    import jem_data.core.table_reader as table_reader
-    import jem_data.core.table_request_manager as table_request_manager
+    def setup(self):
+        self._table_request_manager =  _setup_system()
+
+    def resume(self):
+        self._table_request_manager.resume_requests()
+
+    def stop(self):
+        self._table_request_manager.stop_requests()
+
+def _setup_system():
 
     request_queue = multiprocessing.Queue()
     results_queue = multiprocessing.Queue()
@@ -60,11 +64,7 @@ def setup_system():
     mongo_writer.start()
 
     return manager
-
-def main():
-    manager = setup_system()
-    manager.resume_requests()
-
+    
 def _setup_mongo_collections():
     connection = pymongo.MongoClient(mongo_config.host, mongo_config.port)
     db = connection[mongo_config.database]
@@ -75,5 +75,3 @@ def _setup_mongo_collections():
     if 'realtime' not in db.collection_names():
         db.create_collection('realtime', size=1024*1024*100, capped=True, max=100)
 
-if __name__ == '__main__':
-    main()
