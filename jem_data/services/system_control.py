@@ -6,6 +6,7 @@ import jem_data.core.domain as domain
 import jem_data.core.mongo_sink as mongo_sink
 import jem_data.core.table_reader as table_reader
 import jem_data.core.table_request_manager as table_request_manager
+import jem_data.dal as dal
 
 mongo_config=mongo_sink.MongoConfig(
         host='127.0.0.1',
@@ -19,8 +20,9 @@ class SystemControlService(object):
     Use an instance of this class to control the system's behaviour.
     """
 
-    def __init__(self):
+    def __init__(self, db=None):
         self._table_request_manager = None
+        self._db = db or dal.DataAccessLayer(mongo_config)
 
     def setup(self):
         self._table_request_manager =  _setup_system()
@@ -45,7 +47,8 @@ class SystemControlService(object):
         '''
         for d in devices:
             self._validate_device(d)
-        return []
+        self._db.devices.delete_all()
+        self._db.devices.insert(devices)
 
     def _validate_device(self, device):
         if not isinstance(device.unit, int):
