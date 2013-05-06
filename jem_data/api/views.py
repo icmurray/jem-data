@@ -1,17 +1,23 @@
 import flask
 
-from jem_data.api import app
+system = flask.Blueprint('system', __name__)
 
-@app.route('/')
+@system.route('/')
 def index():
     return 'Hello World!'
 
-@app.route('/system/start', methods=['POST'])
+@system.route('/system/start', methods=['POST'])
 def start_system():
     flask.current_app.table_request_manager.resume_requests()
     return 'OK'
 
-@app.route('/system/stop', methods=['POST'])
+@system.route('/system/stop', methods=['POST'])
 def stop_system():
     flask.current_app.table_request_manager.stop_requests()
     return 'OK'
+    
+@system.before_app_first_request
+def setup_system():
+    manager = flask.current_app.setup_system()
+    flask.current_app.table_request_manager = manager
+
