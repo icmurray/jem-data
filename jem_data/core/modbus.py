@@ -73,10 +73,10 @@ def read_registers(client, unit, registers):
         response.addCallback(callback)
 
     elif isinstance(response, pdu.ExceptionResponse):
-        raise jem_exceptions._wrap_exception_response(response)
+        raise jem_exceptions.wrap_exception_response(response)
 
     elif response is None:
-        raise jem_exceptions.JemEmptyResponse()
+        raise jem_exceptions.ModbusEmptyResponse()
 
     else:
         response = RegisterResponse(response, registers)

@@ -2,15 +2,19 @@ class JemException(Exception):
     '''Top-level Jem-Data specific exception'''
     pass
 
-class JemExceptionResponse(JemException):
+class ModbusExceptionResponse(JemException):
     def __init__(self, response):
-        super(JemExceptionResponse, self).__init__(str(response))
+        super(ModbusExceptionResponse, self).__init__(str(response))
         self.response = response
 
-class JemEmptyResponse(JemException):
+class ModbusEmptyResponse(JemException):
     def __init__(self):
-        super(JemEmptyResponse, self).__init__("No response from server")
+        super(ModbusEmptyResponse, self).__init__("No response from server")
 
-def _wrap_exception_response(response):
+class ValidationException(JemException):
+    def __init__(self, msg):
+        super(ValidationException, self).__init__(str(msg))
+
+def wrap_exception_response(response):
     '''Wrap a given pymodbus ExceptionResponse as a throwable exception.'''
-    return JemExceptionResponse(response)
+    return ModbusExceptionResponse(response)

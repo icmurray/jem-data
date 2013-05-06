@@ -49,7 +49,7 @@ def test_read_registers_raises_exception_on_empty_response():
     client = mock.Mock()
     client.read_holding_registers.return_value = None
 
-    nose.assert_raises(jem_exceptions.JemEmptyResponse,
+    nose.assert_raises(jem_exceptions.ModbusEmptyResponse,
                        modbus.read_registers,
                        client, unit=0x01, registers=registers)
 
