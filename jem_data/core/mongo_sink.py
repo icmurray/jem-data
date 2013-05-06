@@ -7,6 +7,8 @@ import logging
 
 import pymongo
 
+import jem_data.util as util
+
 MongoConfig = collections.namedtuple('MongoConfig',
         'host port database')
 
@@ -32,12 +34,4 @@ def mongo_writer(q, collection_names, mongo_config):
             _log.error(e)
 
 def _insert_into_collection(msgs, mongo_collection):
-    mongo_collection.insert([_deep_asdict(msg) for msg in msgs])
-
-def _deep_asdict(o):
-    if isinstance(o, dict):
-        return dict( (k, _deep_asdict(v)) for (k,v) in o.items() )
-    elif hasattr(o, '_asdict'):
-        return dict( (k, _deep_asdict(v)) for (k,v) in o._asdict().items() )
-    else:
-        return o
+    mongo_collection.insert([util.deep_asdict(msg) for msg in msgs])
