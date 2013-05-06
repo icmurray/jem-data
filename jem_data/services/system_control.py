@@ -7,6 +7,9 @@ import jem_data.core.mongo_sink as mongo_sink
 import jem_data.core.table_reader as table_reader
 import jem_data.core.table_request_manager as table_request_manager
 import jem_data.dal as dal
+import jem_data.core.exceptions as jem_exceptions
+
+ValidationException = jem_exceptions.ValidationException
 
 mongo_config=mongo_sink.MongoConfig(
         host='127.0.0.1',
@@ -53,18 +56,18 @@ class SystemControlService(object):
 
     def _validate_device(self, device):
         if not isinstance(device.unit, int):
-            raise TypeError, "Expected unit to be an integer"
+            raise ValidationException, "Expected unit to be an integer"
         if not (0 < device.unit <= 31):
-            raise ValueError, "Unit lies outside valid range (1-31)"
+            raise ValidationException, "Unit lies outside valid range (1-31)"
         self._validate_gateway(device.gateway)
 
     def _validate_gateway(self, gateway):
         if not isinstance(gateway.host, basestring):
-            raise TypeError, "Expected host to be string"
+            raise ValidationException, "Expected host to be string"
         if not isinstance(gateway.port, int):
-            raise TypeError, "Expected port to be an integer"
+            raise ValidationException, "Expected port to be an integer"
         if gateway.port <= 0:
-            raise ValueError, "Expected port to be positive"
+            raise ValidationException, "Expected port to be positive"
 
 def _setup_system():
     request_queue = multiprocessing.Queue()

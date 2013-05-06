@@ -4,6 +4,9 @@ import flask
 
 import jem_data.core.domain as domain
 import jem_data.util as util
+import jem_data.core.exceptions as jem_exceptions
+
+ValidationException = jem_exceptions.ValidationException
 
 system_control = flask.Blueprint('system_control',
                                  __name__,
@@ -40,7 +43,7 @@ def configure_attached_devices():
         )
 
         return flask.jsonify(gateways=_marshall_device_list(updated))
-    except ValueError:
+    except ValidationException, e:
         flask.abort(400)
 
 @system_control.before_app_first_request
@@ -76,6 +79,6 @@ def _unmarshall_device_list(gateways):
                 devices.append(d)
         return devices
     except KeyError, e:
-        raise ValueError, str(e)
+        raise ValidationException, str(e)
     except TypeError, e:
-        raise ValueError, str(e)
+        raise ValidationException, str(e)
