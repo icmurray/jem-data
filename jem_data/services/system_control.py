@@ -37,6 +37,14 @@ class SystemControlService(object):
         '''
         return []
 
+    def update_devices(self, devices):
+        '''Updates the configured devices in bulk.
+
+        Return the updated list if successful.  Otherwise, if validation
+        fails, a `ValueError` is raised.
+        '''
+        return []
+
 def _setup_system():
 
     request_queue = multiprocessing.Queue()

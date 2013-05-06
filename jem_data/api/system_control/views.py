@@ -2,6 +2,7 @@ import itertools
 
 import flask
 
+import jem_data.core.domain as domain
 import jem_data.util as util
 
 system_control = flask.Blueprint('system_control',
@@ -25,14 +26,28 @@ def stop_system():
 @system_control.route('/attached-devices', methods=['GET'])
 def attached_devices():
     devices = flask.current_app.system_control_service.attached_devices()
-    gateways = _device_list_representation(devices)
+    gateways = _marshall_device_list(devices)
     return flask.jsonify(gateways=gateways)
+
+@system_control.route('/attached-devices', methods=['PUT'])
+def configure_attached_devices():
+    '''Bulk update of configured devices.'''
+    gateways = flask.request.json
+    try:
+        devices = _unmarshall_device_list(gateways)
+        updated = flask.current_app.system_control_service.update_devices(
+            devices
+        )
+
+        return flask.jsonify(gateways=_marshall_device_list(updated))
+    except ValueError:
+        flask.abort(400)
 
 @system_control.before_app_first_request
 def setup_system():
     flask.current_app.system_control_service.setup()
 
-def _device_list_representation(devices):
+def _marshall_device_list(devices):
     '''REST API's device list representation'''
 
     def get_gateway(d):
@@ -47,3 +62,20 @@ def _device_list_representation(devices):
         gateways.append(gw_dict)
 
     return gateways
+
+def _unmarshall_device_list(gateways):
+    '''Unpick devices from list of gateways'''
+    try:
+        devices = []
+        for gw_dict in gateways:
+            gateway = domain.Gateway(
+                    host=gw_dict['host'],
+                    port=gw_dict['port'])
+            for dev_dict in gw_dict['devices']:
+                d = domain.Device(gateway=gateway, unit=dev_dict['unit'])
+                devices.append(d)
+        return devices
+    except KeyError, e:
+        raise ValueError, str(e)
+    except TypeError, e:
+        raise ValueError, str(e)
