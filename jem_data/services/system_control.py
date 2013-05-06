@@ -31,6 +31,12 @@ class SystemControlService(object):
     def stop(self):
         self._table_request_manager.stop_requests()
 
+    def attached_gateways(self):
+        '''Returns the list of `Device`s that the system is currently
+        configured with
+        '''
+        return []
+
 def _setup_system():
 
     request_queue = multiprocessing.Queue()
