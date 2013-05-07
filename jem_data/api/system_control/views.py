@@ -10,7 +10,7 @@ ValidationException = jem_exceptions.ValidationException
 
 system_control = flask.Blueprint('system_control',
                                  __name__,
-                                 url_prefix='/system_control')
+                                 url_prefix='/system-control')
 
 @system_control.route('/')
 def index():

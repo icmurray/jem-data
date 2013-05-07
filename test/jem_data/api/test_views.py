@@ -8,22 +8,22 @@ import jem_data.core.domain as domain
 def test_system_start():
     system_control_service = mock.Mock()
     app = api.app_factory(system_control_service).test_client()
-    response = app.post('/system_control/start')
+    response = app.post('/system-control/start')
     nose.assert_equal(200, response.status_code)
     system_control_service.resume.assert_called_once_with()
 
 def test_system_stop():
     system_control_service = mock.Mock()
     app = api.app_factory(system_control_service).test_client()
-    response = app.post('/system_control/stop')
+    response = app.post('/system-control/stop')
     nose.assert_equal(200, response.status_code)
     system_control_service.stop.assert_called_once_with()
 
 def test_system_setup_called_once_only():
     system_control_service = mock.Mock()
     app = api.app_factory(system_control_service).test_client()
-    app.post('/system_control/start')
-    app.post('/system_control/start')
+    app.post('/system-control/start')
+    app.post('/system-control/start')
     system_control_service.setup.assert_called_once_with()
 
 def test_retrieving_list_of_attached_devices():
@@ -43,7 +43,7 @@ def test_retrieving_list_of_attached_devices():
     system_control_service = mock.Mock()
     system_control_service.attached_devices.return_value = devices
     app = api.app_factory(system_control_service).test_client()
-    response = app.get('/system_control/attached-devices')
+    response = app.get('/system-control/attached-devices')
     nose.assert_equal(200, response.status_code)
     data = json.loads(response.data)
     nose.assert_equal(2, len(data['gateways']))
@@ -67,7 +67,7 @@ def test_updating_list_of_attached_devices():
     system_control_service = mock.Mock()
     system_control_service.update_devices.return_value = devices
     app = api.app_factory(system_control_service).test_client()
-    response = app.put('/system_control/attached-devices',
+    response = app.put('/system-control/attached-devices',
         data=json.dumps([
             {'host': '127.0.0.1', 'port': 5020, 'devices': [
                 {'unit': 1}, {'unit': 2}
@@ -86,7 +86,7 @@ def test_updating_list_of_attached_devices():
 
 def test_updating_devices_with_bad_data():
     app = api.app_factory(mock.Mock()).test_client()
-    response = app.put('/system_control/attached-devices',
+    response = app.put('/system-control/attached-devices',
         data=json.dumps([{'foo': '127.0.0.1'}]),
         content_type='application/json')
     nose.assert_equal(400, response.status_code)
