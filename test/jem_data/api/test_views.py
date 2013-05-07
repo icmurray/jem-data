@@ -90,3 +90,12 @@ def test_updating_devices_with_bad_data():
         data=json.dumps([{'foo': '127.0.0.1'}]),
         content_type='application/json')
     nose.assert_equal(400, response.status_code)
+
+def test_getting_system_status():
+    service = mock.Mock()
+    service.status = {'running': True}
+    app = api.app_factory(service).test_client()
+    response = app.get('/system-control/status')
+    nose.assert_equal(200, response.status_code)
+    nose.assert_equal({'running': True}, json.loads(response.data))
+

@@ -26,21 +26,29 @@ class SystemControlService(object):
     def __init__(self, db=None):
         self._table_request_manager = None
         self._db = db or dal.DataAccessLayer(mongo_config)
+        self._status = {'running': False}
 
     def setup(self):
         self._table_request_manager =  _setup_system()
 
     def resume(self):
         self._table_request_manager.resume_requests()
+        self._status['running'] = True
 
     def stop(self):
         self._table_request_manager.stop_requests()
+        self._status['running'] = False
 
     def attached_devices(self):
         '''Returns the list of `Device`s that the system is currently
         configured with
         '''
         return self._db.devices.all()
+
+    @property
+    def status(self):
+        '''Return's the system's current status'''
+        return self._status.copy()
 
     def update_devices(self, devices):
         '''Updates the configured devices in bulk.

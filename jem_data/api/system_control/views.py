@@ -46,6 +46,11 @@ def configure_attached_devices():
     except ValidationException, e:
         flask.abort(400)
 
+@system_control.route('/status', methods=['GET'])
+def system_status():
+    status = flask.current_app.system_control_service.status
+    return flask.jsonify(**status)
+
 @system_control.before_app_first_request
 def setup_system():
     flask.current_app.system_control_service.setup()
