@@ -108,6 +108,7 @@ class TableRequestManager(multiprocessing.Process):
         now = time.time()
         for table in self._config:
             self._enqueue_push_table_request_task(table, now=now)
+        self._sending_requests = True
 
     def _enqueue_push_table_request_task(self, table, now=None):
         task = _PushTableRequestTask(*table)

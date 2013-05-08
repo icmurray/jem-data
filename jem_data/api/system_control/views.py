@@ -37,8 +37,8 @@ def start_recording():
             start_time=time.time(),
             end_time=None)
     try:
-        flask.current_app.system_control_service.start_recording(recording)
-        return flask.make_response(json.dumps(util.deep_asdict(recording)), 201)
+        updated_recording = flask.current_app.system_control_service.start_recording(recording)
+        return flask.make_response(json.dumps(util.deep_asdict(updated_recording)), 201)
     except jem_exceptions.SystemConflict, e:
         flask.abort(409)
 
