@@ -5,19 +5,19 @@ import nose.tools as nose
 import jem_data.api as api
 import jem_data.core.domain as domain
 
-def test_system_start():
-    system_control_service = mock.Mock()
-    app = api.app_factory(system_control_service).test_client()
-    response = app.post('/system-control/start')
-    nose.assert_equal(200, response.status_code)
-    system_control_service.resume.assert_called_once_with()
-
-def test_system_stop():
-    system_control_service = mock.Mock()
-    app = api.app_factory(system_control_service).test_client()
-    response = app.post('/system-control/stop')
-    nose.assert_equal(200, response.status_code)
-    system_control_service.stop.assert_called_once_with()
+## def test_system_start():
+##     system_control_service = mock.Mock()
+##     app = api.app_factory(system_control_service).test_client()
+##     response = app.post('/system-control/start')
+##     nose.assert_equal(200, response.status_code)
+##     system_control_service.resume.assert_called_once_with()
+## 
+## def test_system_stop():
+##     system_control_service = mock.Mock()
+##     app = api.app_factory(system_control_service).test_client()
+##     response = app.post('/system-control/stop')
+##     nose.assert_equal(200, response.status_code)
+##     system_control_service.stop.assert_called_once_with()
 
 def test_system_setup_called_once_only():
     system_control_service = mock.Mock()

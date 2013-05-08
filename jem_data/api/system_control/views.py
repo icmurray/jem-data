@@ -16,15 +16,21 @@ system_control = flask.Blueprint('system_control',
 def index():
     return 'OK'
 
-@system_control.route('/start', methods=['POST'])
-def start_system():
-    flask.current_app.system_control_service.resume()
-    return 'OK'
+@system_control.route('/recordings', methods=['GET'])
+def list_recordings():
+    return flask.jsonify(recordings=[])
 
-@system_control.route('/stop', methods=['POST'])
-def stop_system():
-    flask.current_app.system_control_service.stop()
-    return 'OK'
+@system_control.route('/recordings', methods=['POST'])
+def start_recording():
+    raise NotImplemented, "Not yet implemented"
+
+@system_control.route('/recordings/<recording_id>', methods=['GET'])
+def recording_details(recording_id):
+    raise NotImplemented, "Not yet implemented"
+
+@system_control.route('/recordings/<recording_id>/stop', methods=['PUT'])
+def stop_recording(recording_id):
+    raise NotImplemented, "Not yet implemented"
 
 @system_control.route('/attached-devices', methods=['GET'])
 def attached_devices():
