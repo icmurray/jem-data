@@ -17,6 +17,9 @@ class ValidationException(JemException):
 class PersistenceException(JemException):
     pass
 
+class SystemConflict(JemException):
+    pass
+
 def wrap_exception_response(response):
     '''Wrap a given pymodbus ExceptionResponse as a throwable exception.'''
     return ModbusExceptionResponse(response)

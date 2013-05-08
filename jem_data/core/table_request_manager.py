@@ -10,6 +10,7 @@ import multiprocessing
 import Queue
 import time
 
+import jem_data.core.domain as domain
 import jem_data.core.messages as messages
 
 class TableRequestManager(multiprocessing.Process):
@@ -36,6 +37,22 @@ class TableRequestManager(multiprocessing.Process):
 
             (_, task) = heapq.heappop(self._tasks)
             self._run_task(task)
+
+    def start_recording(self, recording):
+        '''Resets the current config to only request the given tables.
+        '''
+        tables = []
+        for gateway in recording.configured_gateways:
+            for device in gateway.configured_devices:
+                for table_id in device.table_ids:
+                    tables.append((
+                        domain.Device(
+                            unit=device.unit,
+                            gateway=domain.Gateway(
+                                host=gateway.host,
+                                port=gateway.port)),
+                        table_id))
+        self._instructions.put(_ResetRequests(tables=tables))
 
     def stop_requests(self):
         self._instructions.put(_StopRequests())
@@ -76,13 +93,27 @@ class TableRequestManager(multiprocessing.Process):
             self._sending_requests = False
         elif isinstance(instruction, _ResumeRequests):
             self._sending_requests = True
+        elif isinstance(instruction, _ResetRequests):
+            self._run_reset_instruction(instruction)
         else:
             raise ValueError, "Unknown Instruction Type: %s" % instruction
 
+    def _run_reset_instruction(self, instruction):
+        gateways = set( device.gateway for (device, _) in instruction.tables )
+        for gateway in gateways:
+            if gateway not in self._queues:
+                raise Exception("Uh oh: no queue for gateway: %s" % (gateway,))
+
+        self._config = dict( (t, 0.5) for t in instruction.tables )
+        now = time.time()
+        for table in self._config:
+            self._enqueue_push_table_request_task(table, now=now)
+
     def _enqueue_push_table_request_task(self, table, now=None):
         task = _PushTableRequestTask(*table)
-        delay = self._config[table]
-        self._enqueue_task(task, delay, now)
+        if table in self._config:
+            delay = self._config[table]
+            self._enqueue_task(task, delay, now)
 
     def _enqueue_read_instructions_task(self, delay=0.5, now=None):
         task = _ReadInstructionsTask()
@@ -98,6 +129,10 @@ class _ReadInstructionsTask(object):
 _PushTableRequestTask = collections.namedtuple(
         '_PushTableRequestTask',
         'device table_id')
+
+_ResetRequests = collections.namedtuple(
+        '_ResetRequests',
+        'tables')
 
 class _StopRequests(object):
     __slots__ = ()

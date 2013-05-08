@@ -1,7 +1,10 @@
+import time
+
 import pymongo
 
 import jem_data.core.domain as domain
 import jem_data.core.exceptions as jem_exceptions
+import json_marshalling
 import jem_data.util as util
 
 class DataAccessLayer(object):
@@ -11,6 +14,7 @@ class DataAccessLayer(object):
         self._db = connection[config.database]
 
         self.devices = DeviceRepository(self._db)
+        self.recordings = RecordingsRepository(self._db)
 
 class DeviceRepository(object):
 
@@ -45,33 +49,22 @@ class RecordingsRepository(object):
         recordings = []
         for recording_data in self._collection.find():
             r = domain.Recording(
-                    id=recording_data['_id'],
+                    id=str(recording_data['_id']),
                     status=recording_data['status'],
                     configured_gateways=map(
-                        self._extract_configured_gateway,
+                        json_marshalling.extract_configured_gateway,
                         recording_data['configured_gateways']),
                     start_time=recording_data['start_time'],
                     end_time=recording_data['end_time'])
             recordings.append(r)
         return recordings
 
-    def _extract_configured_gateway(self, configured_gw_data):
-        return domain.ConfiguredGateway(
-                host=configured_gw_data['host'],
-                port=configured_gw_data['port'],
-                configured_devices=map(
-                    self._extract_configured_device,
-                    configured_gw_data['configured_devices']))
-
-    def _extract_configured_device(self, configured_device_data):
-        return domain.ConfiguredDevice(**configured_device_data)
-
     def create(self, recording):
         '''Inserts a new recording, and creates a collection for its results.
         '''
         data = util.deep_asdict(recording)
         self._collection.insert(data)
-        new_id = data['_id']
+        new_id = str(data['_id'])
 
         try:
             self._db.create_collection('archive-%s' % new_id)
@@ -88,8 +81,9 @@ class RecordingsRepository(object):
         longer be running, but will still be marked as such in the database.
         Hence this function.
         '''
+        now = time.time()
         spec = {'status': 'running'}
-        doc  = {'$set': {'status': 'aborted'}}
+        doc  = {'$set': {'status': 'aborted', 'end_time': now}}
         result = self._collection.update(spec, doc, multi=True)
         if result['err'] is None:
             return result['n']

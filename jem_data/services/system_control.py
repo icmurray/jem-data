@@ -1,4 +1,5 @@
 import multiprocessing
+import threading
 
 import pymongo
 
@@ -10,6 +11,7 @@ import jem_data.dal as dal
 import jem_data.core.exceptions as jem_exceptions
 
 ValidationException = jem_exceptions.ValidationException
+SystemConflict = jem_exceptions.SystemConflict
 
 mongo_config=mongo_sink.MongoConfig(
         host='127.0.0.1',
@@ -24,12 +26,33 @@ class SystemControlService(object):
     """
 
     def __init__(self, db=None):
+        self._status_lock = threading.RLock()
         self._table_request_manager = None
         self._db = db or dal.DataAccessLayer(mongo_config)
-        self._status = {'running': False}
+        self._status = {'running': False,
+                        'active_recordings': []}
 
     def setup(self):
         self._table_request_manager =  _setup_system()
+        self._db.recordings.cleanup_recordings()
+
+    def start_recording(self, recording):
+        '''Create a new recording, and start running it.
+        '''
+        with self._status_lock:
+            if self._status['running']:
+                raise SystemConflict(
+                    "Cannot run more than one recording at a time. "
+                    "Currently running: %s" % (
+                        self._status['active_recordings']))
+
+            new_recording = self._db.recordings.create(recording)
+
+            self._status['active_recordings'].append(new_recording.id)
+            self._status['running'] = True
+
+            self._table_request_manager.start_recording(recording)
+            return new_recording
 
     def resume(self):
         self._table_request_manager.resume_requests()
@@ -54,7 +77,8 @@ class SystemControlService(object):
     @property
     def status(self):
         '''Return's the system's current status'''
-        return self._status.copy()
+        with self._status_lock:
+            return self._status.copy()
 
     def update_devices(self, devices):
         '''Updates the configured devices in bulk.

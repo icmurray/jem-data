@@ -1,7 +1,10 @@
 import itertools
+import json
+import time
 
 import flask
 
+import jem_data
 import jem_data.core.domain as domain
 import jem_data.util as util
 import jem_data.core.exceptions as jem_exceptions
@@ -24,7 +27,20 @@ def list_recordings():
 
 @system_control.route('/recordings', methods=['POST'])
 def start_recording():
-    raise NotImplemented, "Not yet implemented"
+    configured_gateways = map(
+            jem_data.dal.json_marshalling.extract_configured_gateway,
+            flask.request.json)
+    recording = domain.Recording(
+            id=None,
+            status='running',
+            configured_gateways = configured_gateways,
+            start_time=time.time(),
+            end_time=None)
+    try:
+        flask.current_app.system_control_service.start_recording(recording)
+        return flask.make_response(json.dumps(util.deep_asdict(recording)), 201)
+    except jem_exceptions.SystemConflict, e:
+        flask.abort(409)
 
 @system_control.route('/recordings/<recording_id>', methods=['GET'])
 def recording_details(recording_id):
