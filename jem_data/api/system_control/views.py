@@ -18,7 +18,9 @@ def index():
 
 @system_control.route('/recordings', methods=['GET'])
 def list_recordings():
-    return flask.jsonify(recordings=[])
+    recordings = flask.current_app.system_control_service.all_recordings()
+    recordings = map(util.deep_asdict, recordings)
+    return flask.jsonify(recordings=recordings)
 
 @system_control.route('/recordings', methods=['POST'])
 def start_recording():

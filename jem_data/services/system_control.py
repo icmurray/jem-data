@@ -45,6 +45,12 @@ class SystemControlService(object):
         '''
         return self._db.devices.all()
 
+    def all_recordings(self):
+        '''List of all recordings.  Sorted by start date.'''
+        return sorted(self._db.recordings.all(),
+                      key=lambda r: r.start_time,
+                      reverse=True)
+
     @property
     def status(self):
         '''Return's the system's current status'''

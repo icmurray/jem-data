@@ -99,3 +99,29 @@ def test_getting_system_status():
     nose.assert_equal(200, response.status_code)
     nose.assert_equal({'running': True}, json.loads(response.data))
 
+def test_retrieving_list_of_recordings():
+    recordings = [ _empty_recording(i) for i in xrange(10) ]
+
+    system_control_service = mock.Mock()
+    system_control_service.all_recordings.return_value = recordings
+    app = api.app_factory(system_control_service).test_client()
+    response = app.get('/system-control/recordings')
+    nose.assert_equal(200, response.status_code)
+    data = json.loads(response.data)
+    nose.assert_equal(10, len(data['recordings']))
+
+def _empty_recording(i):
+    return domain.Recording(
+            id=None,
+            status=None,
+            configured_gateways=[_empty_configured_gateway()],
+            end_time=None,
+            start_time=i)
+
+def _empty_configured_gateway():
+    return domain.ConfiguredGateway(
+            host=None, port=None,
+            configured_devices = [_empty_configured_device()])
+
+def _empty_configured_device():
+    return domain.ConfiguredDevice(unit=None, table_ids=[1,2,3])

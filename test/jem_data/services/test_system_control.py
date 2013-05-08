@@ -64,3 +64,15 @@ def test_attached_devices():
     system_control = services.SystemControlService(db)
     system_control.attached_devices()
     db.devices.all.assert_called_once_with()
+
+def test_all_recordings():
+    db = mock.Mock()
+    system_control = services.SystemControlService(db)
+    db.recordings.all.return_value = [
+        domain.Recording(
+            id=None, status=None, configured_gateways=[], end_time=None,
+            start_time=i) for i in xrange(10) ]
+    result = system_control.all_recordings()
+
+    nose.assert_equal(len(result), 10)
+    nose.assert_equal(result[0].start_time, 9)
