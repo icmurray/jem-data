@@ -38,6 +38,7 @@ class DeviceRepository(object):
 class RecordingsRepository(object):
 
     def __init__(self, db):
+        self._db = db
         self._collection = db['recordings']
 
     def all(self):
@@ -65,10 +66,19 @@ class RecordingsRepository(object):
     def _extract_configured_device(self, configured_device_data):
         return domain.ConfiguredDevice(**configured_device_data)
 
-    def insert(self, recording):
+    def create(self, recording):
+        '''Inserts a new recording, and creates a collection for its results.
+        '''
         data = util.deep_asdict(recording)
         self._collection.insert(data)
-        return recording._replace(id=data['_id'])
+        new_id = data['_id']
+
+        try:
+            self._db.create_collection('archive-%s' % new_id)
+        except pymongo.errors.CollectionInvalid, e:
+            raise jem_exceptions.PersistenceException(str(e))
+
+        return recording._replace(id=new_id)
 
     def cleanup_recordings(self):
         '''Check for any running recordings, and mark as aborted.

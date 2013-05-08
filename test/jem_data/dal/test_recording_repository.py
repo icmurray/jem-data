@@ -6,12 +6,12 @@ import jem_data.core.domain as domain
 import jem_data.core.exceptions as jem_exceptions
 import jem_data.dal as dal
 
-def test_insert():
+def test_create():
 
     def add_id(d):
         d['_id'] = 'abcdefg'
 
-    db = {'recordings': mock.Mock()}
+    db = mock.MagicMock()
     db['recordings'].insert.side_effect = add_id
     repo = dal.RecordingsRepository(db)
     recording = domain.Recording(
@@ -20,9 +20,10 @@ def test_insert():
             configured_gateways=[_configured_gateway()],
             start_time=time.time(),
             end_time=None)
-    updated_value = repo.insert(recording)
+    updated_value = repo.create(recording)
 
     db['recordings'].insert.assert_called_once_with(mock.ANY)
+    db.create_collection.assert_called_once_with('archive-abcdefg')
     nose.assert_equal(updated_value.id, 'abcdefg')
 
 def test_all():
