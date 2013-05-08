@@ -44,7 +44,13 @@ def start_recording():
 
 @system_control.route('/recordings/<recording_id>', methods=['GET'])
 def recording_details(recording_id):
-    raise NotImplemented, "Not yet implemented"
+    recording = flask.current_app.system_control_service.get_recording(
+            recording_id)
+    if recording is not None:
+        return flask.make_response(
+            json.dumps(util.deep_asdict(recording)), 200)
+    else:
+        flask.abort(404)
 
 @system_control.route('/recordings/<recording_id>/stop', methods=['PUT'])
 def stop_recording(recording_id):

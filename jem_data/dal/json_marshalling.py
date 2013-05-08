@@ -18,3 +18,14 @@ def extract_configured_gateway(configured_gw_data):
 
 def extract_configured_device(configured_device_data):
     return domain.ConfiguredDevice(**configured_device_data)
+
+def unmarshall_recording(recording_data):
+    return domain.Recording(
+            id=str(recording_data['_id']),
+            status=recording_data['status'],
+            configured_gateways=map(
+                extract_configured_gateway,
+                recording_data['configured_gateways']),
+            start_time=recording_data['start_time'],
+            end_time=recording_data['end_time'])
+

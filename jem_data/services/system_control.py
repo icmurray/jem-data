@@ -74,6 +74,10 @@ class SystemControlService(object):
                       key=lambda r: r.start_time,
                       reverse=True)
 
+    def get_recording(self, recording_id):
+        '''Return the recording if it exists, otherwise None'''
+        return self._db.recordings.by_id(recording_id)
+
     @property
     def status(self):
         '''Return's the system's current status'''

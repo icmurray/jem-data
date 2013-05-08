@@ -1,5 +1,6 @@
 import time
 
+import bson.objectid as objectid
 import pymongo
 
 import jem_data.core.domain as domain
@@ -48,16 +49,16 @@ class RecordingsRepository(object):
     def all(self):
         recordings = []
         for recording_data in self._collection.find():
-            r = domain.Recording(
-                    id=str(recording_data['_id']),
-                    status=recording_data['status'],
-                    configured_gateways=map(
-                        json_marshalling.extract_configured_gateway,
-                        recording_data['configured_gateways']),
-                    start_time=recording_data['start_time'],
-                    end_time=recording_data['end_time'])
+            r = json_marshalling.unmarshall_recording(recording_data)
             recordings.append(r)
         return recordings
+
+    def by_id(self, recording_id):
+        data = self._collection.find_one(objectid.ObjectId(recording_id))
+        if data is None:
+            return None
+
+        return json_marshalling.unmarshall_recording(data)
 
     def create(self, recording):
         '''Inserts a new recording, and creates a collection for its results.
