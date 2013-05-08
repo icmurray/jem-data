@@ -58,9 +58,24 @@ class SystemControlService(object):
         self._table_request_manager.resume_requests()
         self._status['running'] = True
 
-    def stop(self):
-        self._table_request_manager.stop_requests()
-        self._status['running'] = False
+    def stop_recording(self, recording_id):
+
+        recording = self.get_recording(recording_id)
+        if recording is None:
+            return None
+
+        with self._status_lock:
+            if recording_id not in self._status['active_recordings']:
+                # Nothing to do.
+                return recording
+
+            self._table_request_manager.stop_requests()
+
+            self._status['active_recordings'].remove(recording_id)
+            self._status['running'] = False
+
+            updated_recording = self._db.recordings.end_recording(recording_id)
+            return updated_recording
 
     def attached_devices(self):
         '''Returns the list of `Device`s that the system is currently

@@ -74,6 +74,18 @@ class RecordingsRepository(object):
 
         return recording._replace(id=new_id)
 
+    def end_recording(self, recording_id):
+        '''End the given recording'''
+        now = time.time()
+        spec = {'_id': objectid.ObjectId(recording_id)}
+        doc  = {'$set': {'status': 'ended', 'end_time': now}}
+        result = self._collection.update(spec, doc)
+        if result['err'] is None:
+            return self.by_id(recording_id)
+        else:
+            raise jem_exceptions.PersistenceException(result['err'])
+
+
     def cleanup_recordings(self):
         '''Check for any running recordings, and mark as aborted.
 

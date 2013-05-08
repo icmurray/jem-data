@@ -54,7 +54,13 @@ def recording_details(recording_id):
 
 @system_control.route('/recordings/<recording_id>/stop', methods=['PUT'])
 def stop_recording(recording_id):
-    raise NotImplemented, "Not yet implemented"
+    updated_recording = flask.current_app.system_control_service.stop_recording(recording_id)
+
+    if updated_recording is None:
+        flask.abort(404)
+
+    return flask.make_response(
+        json.dumps(util.deep_asdict(updated_recording)), 200)
 
 @system_control.route('/attached-devices', methods=['GET'])
 def attached_devices():
