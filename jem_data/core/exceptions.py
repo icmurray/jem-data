@@ -12,8 +12,10 @@ class ModbusEmptyResponse(JemException):
         super(ModbusEmptyResponse, self).__init__("No response from server")
 
 class ValidationException(JemException):
-    def __init__(self, msg):
-        super(ValidationException, self).__init__(str(msg))
+    pass
+
+class PersistenceException(JemException):
+    pass
 
 def wrap_exception_response(response):
     '''Wrap a given pymodbus ExceptionResponse as a throwable exception.'''
