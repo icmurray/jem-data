@@ -11,9 +11,9 @@ class DataAccessLayer(object):
         connection = pymongo.MongoClient(config.host, config.port)
         self._db = connection[config.database]
 
-        self.devices = DataRepository(self._db)
+        self.devices = DeviceRepository(self._db)
 
-class DataRepository(object):
+class DeviceRepository(object):
 
     def __init__(self, db):
         self._collection = db['devices']
