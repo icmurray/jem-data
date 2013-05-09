@@ -133,20 +133,23 @@ class A40HoldingRegistersDataBlock(datastore.ModbusSparseDataBlock):
         # every 36 seconds.
         diris_time = int(elapsed_time / 36)
         self.setValues(_HOUR_METER, self._expand_register_value(_HOUR_METER, diris_time))
-        
-        self._update_varying_register(_PHASE_CURRENT_1)
-        self._update_varying_register(_FREQUENCY)
-        self._update_varying_register(_NEUTRAL_CURRENT)
+
+        for k in _INITIAL_REGISTER_VALUES:
+            self._update_varying_register(k)
+
+        ##self._update_varying_register(_PHASE_CURRENT_1)
+        ##self._update_varying_register(_FREQUENCY)
+        ##self._update_varying_register(_NEUTRAL_CURRENT)
 
     def _update_varying_register(self, addr, last_values={}):
         if addr not in last_values:
-            last_values[addr] = 10
+            last_values[addr] = 50
         else:
             p = random.randint(0,100)
-            if p < 5:
-                last_values[addr] += 1
-            elif p < 10:
-                last_values[addr] -= 1
+            if p < 25:
+                last_values[addr] = min(100, last_values[addr]+1)
+            elif p < 50:
+                last_values[addr] = max(0, last_values[addr]-1)
 
         self.setValues(addr,
                        self._expand_register_value(addr, last_values[addr]))
