@@ -1,10 +1,12 @@
 import logging
+import struct
 
 from twisted.internet import defer
 
 import pymodbus.pdu as pdu
 
 import jem_data.core.exceptions as jem_exceptions
+import jem_data.util as util
 
 _log = logging.getLogger(__name__)
 
@@ -126,7 +128,8 @@ class RegisterResponse(object):
     class can, when asked for the value of the register named `0xC550`,
     combine the two values.
 
-    The most significant bytes are assumed to be stored in the lower address.
+    The most significant bytes are assumed to be stored in the lower address,
+    and the value as a whole is assumed to be stored in 2's complement.
     '''
 
     def __init__(self, pymodbus_response, requested_registers):
@@ -141,7 +144,7 @@ class RegisterResponse(object):
         values = [ self._response.getRegister(addr + i - self._min_addr) \
                         for i in range(self._requested_registers[addr]) ]
 
-        return reduce(lambda acc, x: (acc << 16) + x, values, 0)
+        return util.unpack_values(values)
 
 #-----------------------------------------------------------------------------
 # Exception definitions

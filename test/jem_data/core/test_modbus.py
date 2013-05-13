@@ -69,7 +69,7 @@ def test_access_value_of_a_multi_register_value():
             requested_registers = _requested_registers())
 
     result = jem_response.read_register(0xC550)
-    nose.assert_equal(result, 0xABCD1234)
+    nose.assert_equal(result, 0x0BCD1234)
 
 def test_access_value_of_a_single_register_value():
     jem_response = modbus.RegisterResponse(
@@ -78,6 +78,22 @@ def test_access_value_of_a_single_register_value():
 
     result = jem_response.read_register(0xC553)
     nose.assert_equal(result, 0x22)
+
+def test_access_value_of_a_single_register_with_negative_value():
+    jem_response = modbus.RegisterResponse(
+            pymodbus_response = _mock_pymodbus_response(),
+            requested_registers = _requested_registers())
+
+    result = jem_response.read_register(0xC554)
+    nose.assert_equal(result, -1)
+
+def test_access_value_of_a_multiple_register_with_negative_value():
+    jem_response = modbus.RegisterResponse(
+            pymodbus_response = _mock_pymodbus_response(),
+            requested_registers = _requested_registers())
+
+    result = jem_response.read_register(0xC555)
+    nose.assert_equal(result, -2147483648)
 
 def test_split_registers_simple_case():
     registers = {
@@ -140,16 +156,29 @@ def _requested_registers():
         0xC550: 2,
         0xC552: 1,
         0xC553: 1,
+        0xC554: 1,
+        0xC555: 2,
     }
 
 def _mock_pymodbus_response():
 
     register_values = {
-        0xC550: 0xABCD,
+        # Positive value split across 2 registers
+        0xC550: 0x0BCD,
         0xC551: 0x1234,
-        0xC552: 0,
-        0xC553: 0x22
+
+        # Single register values
+        0xC552: 0x0000,
+        0xC553: 0x0022,
+
+        # Single negative (2's complement) value (-1)
+        0xC554: 0xFFFF,
+
+        # Negative value split across 2 registers (-2147483648)
+        0xC555: 0x8000,
+        0xC556: 0x0000,
     }
+
     def side_effect(addr):
         return register_values[addr + 0xC550]
 

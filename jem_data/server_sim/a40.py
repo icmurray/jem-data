@@ -1,10 +1,12 @@
 import logging
 import random
+import struct
 import time
 
 import pymodbus.datastore as datastore
 
 import jem_data.diris.registers as diris_registers
+import jem_data.util as util
 
 _log = logging.getLogger(__name__)
 
@@ -116,13 +118,10 @@ class A40HoldingRegistersDataBlock(datastore.ModbusSparseDataBlock):
         '''
         assert addr in _ALL_REGISTERS
         width = _ALL_REGISTERS[addr]
-        assert width * 16 >= value.bit_length()
-        mask = 0xFFFF
 
         to_return = {}
-        for i in range(0,width):
-            shift = i*16
-            to_return[addr + width - i - 1] = (value & (mask << shift)) >> shift
+        for i, value in enumerate(util.pack_value(value, width)):
+            to_return[addr + i] = value
 
         return to_return
 
@@ -144,13 +143,13 @@ class A40HoldingRegistersDataBlock(datastore.ModbusSparseDataBlock):
 
     def _update_varying_register(self, addr):
         if addr not in self._last_values:
-            self._last_values[addr] = 50
+            self._last_values[addr] = 0
         else:
             p = random.randint(0,100)
             if p < 25:
                 self._last_values[addr] = min(100, self._last_values[addr]+1)
             elif p < 50:
-                self._last_values[addr] = max(0, self._last_values[addr]-1)
+                self._last_values[addr] = max(-100, self._last_values[addr]-1)
 
         self.setValues(addr,
                        self._expand_register_value(addr, self._last_values[addr]))
