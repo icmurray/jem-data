@@ -26,7 +26,7 @@ def create():
         di = datastore.ModbusSequentialDataBlock(0, [1]),
         co = datastore.ModbusSequentialDataBlock(0, [1]),
         ir = datastore.ModbusSequentialDataBlock(0, [1]),
-        hr = A40HoldingRegistersDataBlock(_INITIAL_REGISTER_VALUES)
+        hr = A40HoldingRegistersDataBlock(_INITIAL_REGISTER_VALUES.copy())
     )
 
 _ALL_REGISTERS = diris_registers.ALL
@@ -98,6 +98,7 @@ class A40HoldingRegistersDataBlock(datastore.ModbusSparseDataBlock):
         super(A40HoldingRegistersDataBlock, self).__init__(expanded_values)
 
         if dynamic:
+            self._last_values = {}
             _log.debug("A40 Register Block initialised with dynamic updating")
             from twisted.internet import task
             self._start_time = time.time()
@@ -141,16 +142,16 @@ class A40HoldingRegistersDataBlock(datastore.ModbusSparseDataBlock):
         ##self._update_varying_register(_FREQUENCY)
         ##self._update_varying_register(_NEUTRAL_CURRENT)
 
-    def _update_varying_register(self, addr, last_values={}):
-        if addr not in last_values:
-            last_values[addr] = 50
+    def _update_varying_register(self, addr):
+        if addr not in self._last_values:
+            self._last_values[addr] = 50
         else:
             p = random.randint(0,100)
             if p < 25:
-                last_values[addr] = min(100, last_values[addr]+1)
+                self._last_values[addr] = min(100, self._last_values[addr]+1)
             elif p < 50:
-                last_values[addr] = max(0, last_values[addr]-1)
+                self._last_values[addr] = max(0, self._last_values[addr]-1)
 
         self.setValues(addr,
-                       self._expand_register_value(addr, last_values[addr]))
+                       self._expand_register_value(addr, self._last_values[addr]))
 
