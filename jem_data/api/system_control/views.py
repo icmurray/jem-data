@@ -114,9 +114,14 @@ def _unmarshall_device_list(gateways):
         for gw_dict in gateways:
             gateway = domain.Gateway(
                     host=gw_dict['host'],
-                    port=gw_dict['port'])
+                    port=gw_dict['port'],
+                    label=None)
             for dev_dict in gw_dict['devices']:
-                d = domain.Device(gateway=gateway, unit=dev_dict['unit'])
+                d = domain.Device(
+                        gateway=gateway,
+                        unit=dev_dict['unit'],
+                        label=None,
+                        tables=[])
                 devices.append(d)
         return devices
     except KeyError, e:

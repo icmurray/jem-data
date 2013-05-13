@@ -11,11 +11,11 @@ def test_start_recording():
     manager = trm.TableRequestManager(queues, config, instructions)
 
     recording = _stub_recording()
-    gateway = domain.Gateway("127.0.0.1", 5020)
+    gateway = domain.Gateway("127.0.0.1", 5020, label=None)
     expected_tables = [
-            (domain.Device(unit=10, gateway=gateway), 1),
-            (domain.Device(unit=10, gateway=gateway), 2),
-            (domain.Device(unit=10, gateway=gateway), 3)]
+            (domain.Device(unit=10, gateway=gateway, label=None, tables=[]), 1),
+            (domain.Device(unit=10, gateway=gateway, label=None, tables=[]), 2),
+            (domain.Device(unit=10, gateway=gateway, label=None, tables=[]), 3)]
 
     expected_instruction = trm._ResetRequests(tables=expected_tables)
     manager.start_recording(recording)

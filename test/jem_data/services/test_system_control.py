@@ -11,7 +11,9 @@ def test_update_devices_validates_gateway_host():
     system_control = services.SystemControlService(mock.Mock())
     device = domain.Device(
             unit=1,
-            gateway=domain.Gateway(host=123, port=456))
+            gateway=domain.Gateway(host=123, port=456, label=None),
+            label=None,
+            tables=[])
 
     nose.assert_raises(ValidationException,
                   system_control.update_devices,
@@ -21,7 +23,9 @@ def test_update_validates_gateway_port():
     system_control = services.SystemControlService(mock.Mock())
     device = domain.Device(
             unit=1,
-            gateway=domain.Gateway(host="127.0.0.1", port=-1))
+            gateway=domain.Gateway(host="127.0.0.1", port=-1, label=None),
+            label=None,
+            tables=[])
 
     nose.assert_raises(ValidationException,
                   system_control.update_devices,
@@ -31,7 +35,9 @@ def test_update_validates_device_unit():
     system_control = services.SystemControlService(mock.Mock())
     device = domain.Device(
             unit="1",
-            gateway=domain.Gateway(host="127.0.0.1", port=502))
+            gateway=domain.Gateway(host="127.0.0.1", port=502, label=None),
+            label=None,
+            tables=[])
 
     nose.assert_raises(ValidationException,
                   system_control.update_devices,
@@ -41,7 +47,9 @@ def test_update_validates_device_unit_range():
     system_control = services.SystemControlService(mock.Mock())
     device = domain.Device(
             unit=32,
-            gateway=domain.Gateway(host="127.0.0.1", port=502))
+            gateway=domain.Gateway(host="127.0.0.1", port=502, label=None),
+            label=None,
+            tables=[])
 
     nose.assert_raises(ValidationException,
                   system_control.update_devices,
@@ -52,7 +60,9 @@ def test_update_with_valid_data():
     system_control = services.SystemControlService(db)
     device = domain.Device(
             unit=1,
-            gateway=domain.Gateway(host="127.0.0.1", port=502))
+            gateway=domain.Gateway(host="127.0.0.1", port=502, label=None),
+            label=None,
+            tables=[])
     system_control.update_devices([device])
 
     db.devices.delete_all.assert_called_once_with()

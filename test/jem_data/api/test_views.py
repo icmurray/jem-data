@@ -26,19 +26,24 @@ def test_system_setup_called_once_only():
     app.post('/system-control/start')
     system_control_service.setup.assert_called_once_with()
 
-def test_retrieving_list_of_attached_devices():
+def _gateways_and_devices_data():
     gateways = [
-        domain.Gateway("127.0.0.1", 5020),
-        domain.Gateway("192.168.0.101", 502)
+        domain.Gateway("127.0.0.1", 5020, label=None),
+        domain.Gateway("192.168.0.101", 502, label=None)
     ]
 
     devices = [
-        domain.Device(gateways[0], 0x01),
-        domain.Device(gateways[0], 0x02),
-        domain.Device(gateways[1], 0x01),
-        domain.Device(gateways[1], 0x02),
-        domain.Device(gateways[1], 0x03),
+        domain.Device(gateways[0], 0x01, label=None, tables=[]),
+        domain.Device(gateways[0], 0x02, label=None, tables=[]),
+        domain.Device(gateways[1], 0x01, label=None, tables=[]),
+        domain.Device(gateways[1], 0x02, label=None, tables=[]),
+        domain.Device(gateways[1], 0x03, label=None, tables=[]),
     ]
+
+    return (gateways, devices)
+
+def test_retrieving_list_of_attached_devices():
+    gateways, devices = _gateways_and_devices_data()
 
     system_control_service = mock.Mock()
     system_control_service.attached_devices.return_value = devices
@@ -51,18 +56,7 @@ def test_retrieving_list_of_attached_devices():
     nose.assert_equal(len(data['gateways'][1]['devices']), 3)
 
 def test_updating_list_of_attached_devices():
-    gateways = [
-        domain.Gateway("127.0.0.1", 5020),
-        domain.Gateway("192.168.0.101", 502)
-    ]
-
-    devices = [
-        domain.Device(gateways[0], 0x01),
-        domain.Device(gateways[0], 0x02),
-        domain.Device(gateways[1], 0x01),
-        domain.Device(gateways[1], 0x02),
-        domain.Device(gateways[1], 0x03),
-    ]
+    gateways, devices = _gateways_and_devices_data()
 
     system_control_service = mock.Mock()
     system_control_service.update_devices.return_value = devices
@@ -77,8 +71,8 @@ def test_updating_list_of_attached_devices():
             ]},
         ]),
         content_type='application/json')
-    system_control_service.update_devices.assert_called_once_with(devices)
     nose.assert_equal(200, response.status_code)
+    system_control_service.update_devices.assert_called_once_with(devices)
     data = json.loads(response.data)
     nose.assert_equal(2, len(data['gateways']))
     nose.assert_equal(len(data['gateways'][0]['devices']), 2)

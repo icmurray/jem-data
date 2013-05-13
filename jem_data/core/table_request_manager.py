@@ -50,7 +50,10 @@ class TableRequestManager(multiprocessing.Process):
                             unit=device.unit,
                             gateway=domain.Gateway(
                                 host=gateway.host,
-                                port=gateway.port)),
+                                port=gateway.port,
+                                label=None),
+                            label=None,
+                            tables=[]),
                         table_id))
         self._instructions.put(_ResetRequests(tables=tables))
 
