@@ -49,17 +49,17 @@ def _run(in_q, out_q, client):
 def _read_table(in_q, out_q, conn):
     msg = in_q.get()
 
-    for request in _table_requests(msg.table_id):
+    for registers in _table_requests(msg.table_id):
         start_time = time.time()
         response = modbus.read_registers(conn,
-                                         registers=request,
+                                         registers=registers,
                                          unit=msg.device.unit)
         end_time = time.time()
 
         result = messages.ResponseMsg(
                 device = msg.device,
                 table_id = msg.table_id,
-                values = _read_values_from_response(response, msg.table_id),
+                values = _read_values_from_response(response, registers),
                 timing_info = domain.TimingInfo(start_time, end_time),
                 error = None,
                 request_info = None)
@@ -70,10 +70,9 @@ def _table_requests(table_id):
     registers = diris_registers.TABLES[table_id - 1]
     return modbus.split_registers(registers)
 
-def _read_values_from_response(response, table_id):
+def _read_values_from_response(response, requested_registers):
     """
     Returns a tuple of 2-tuples of (address, value) pairs.
     """
-    requested_registers = diris_registers.TABLES[table_id - 1]
     return tuple( (addr, response.read_register(addr)) \
                         for addr in requested_registers.keys() )
