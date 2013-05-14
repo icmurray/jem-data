@@ -26,27 +26,34 @@ def test_system_setup_called_once_only():
     app.post('/system-control/start')
     system_control_service.setup.assert_called_once_with()
 
-def _gateways_and_devices_data():
-    gateways = [
-        domain.Gateway("127.0.0.1", 5020, label=None),
-        domain.Gateway("192.168.0.101", 502, label=None)
+def _stub_gateways():
+    devices = [
+        [
+            domain.Device(0x01, label=None, tables=[]),
+            domain.Device(0x02, label='Custom Label', tables=[]),
+        ],
+        [
+            domain.Device(0x01, label=None, tables=[]),
+            domain.Device(0x02, label=None, tables=[]),
+            domain.Device(0x03, label=None, tables=[]),
+        ]
     ]
 
-    devices = [
-        domain.Device(gateways[0], 0x01, label=None, tables=[]),
-        domain.Device(gateways[0], 0x02, label=None, tables=[]),
-        domain.Device(gateways[1], 0x01, label=None, tables=[]),
-        domain.Device(gateways[1], 0x02, label=None, tables=[]),
-        domain.Device(gateways[1], 0x03, label=None, tables=[]),
+    gateways = [
+        domain.Gateway("127.0.0.1", 5020,
+                       label='Gateway 1', devices=devices[0]),
+
+        domain.Gateway("192.168.0.101", 502,
+                       label=None, devices=devices[1])
     ]
 
     return (gateways, devices)
 
 def test_retrieving_list_of_attached_devices():
-    gateways, devices = _gateways_and_devices_data()
+    gateways = _stub_gateways()
 
     system_control_service = mock.Mock()
-    system_control_service.attached_devices.return_value = devices
+    system_control_service.attached_devices.return_value = gateways
     app = api.app_factory(system_control_service).test_client()
     response = app.get('/system-control/attached-devices')
     nose.assert_equal(200, response.status_code)
@@ -56,23 +63,36 @@ def test_retrieving_list_of_attached_devices():
     nose.assert_equal(len(data['gateways'][1]['devices']), 3)
 
 def test_updating_list_of_attached_devices():
-    gateways, devices = _gateways_and_devices_data()
+    gateways = _stub_gateways()
 
     system_control_service = mock.Mock()
-    system_control_service.update_devices.return_value = devices
+    system_control_service.update_devices.return_value = gateways
     app = api.app_factory(system_control_service).test_client()
     response = app.put('/system-control/attached-devices',
         data=json.dumps([
-            {'host': '127.0.0.1', 'port': 5020, 'devices': [
-                {'unit': 1}, {'unit': 2}
-            ]},
-            {'host': '192.168.0.101', 'port': 502, 'devices': [
-                {'unit': 1}, {'unit': 2}, {'unit': 3}
-            ]},
+            {
+                'host': '127.0.0.1',
+                'port': 5020,
+                'label': 'Gateway 1',
+                'devices': [
+                    {'unit': 1, 'label': None, 'tables': [] },
+                    {'unit': 2, 'label': 'Custom Label', 'tables': [] },
+                ],
+            },
+            {
+                'host': '192.168.0.101',
+                'port': 502,
+                'label': None,
+                'devices': [
+                    {'unit': 1, 'label': None, 'tables': [] },
+                    {'unit': 2, 'label': None, 'tables': [] },
+                    {'unit': 3, 'label': None, 'tables': [] },
+                ],
+            },
         ]),
         content_type='application/json')
     nose.assert_equal(200, response.status_code)
-    system_control_service.update_devices.assert_called_once_with(devices)
+    system_control_service.update_devices.assert_called_once_with(gateways)
     data = json.loads(response.data)
     nose.assert_equal(2, len(data['gateways']))
     nose.assert_equal(len(data['gateways'][0]['devices']), 2)
@@ -108,14 +128,6 @@ def _empty_recording(i):
     return domain.Recording(
             id=None,
             status=None,
-            configured_gateways=[_empty_configured_gateway()],
+            gateways=_stub_gateways(),
             end_time=None,
             start_time=i)
-
-def _empty_configured_gateway():
-    return domain.ConfiguredGateway(
-            host=None, port=None,
-            configured_devices = [_empty_configured_device()])
-
-def _empty_configured_device():
-    return domain.ConfiguredDevice(unit=None, table_ids=[1,2,3])

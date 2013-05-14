@@ -8,16 +8,16 @@ import jem_data.dal as dal
 
 def test_create():
 
-    def add_id(d):
+    def add_id_to_dict(d):
         d['_id'] = 'abcdefg'
 
     db = mock.MagicMock()
-    db['recordings'].insert.side_effect = add_id
+    db['recordings'].insert.side_effect = add_id_to_dict
     repo = dal.RecordingsRepository(db)
     recording = domain.Recording(
             id=None,
             status='running',
-            configured_gateways=[_configured_gateway()],
+            gateways=[_stub_gateway()],
             start_time=time.time(),
             end_time=None)
     updated_value = repo.create(recording)
@@ -32,23 +32,42 @@ def test_all():
         'status': 'running',
         'start_time': time.time(),
         'end_time': None,
-        'configured_gateways': [
+        'gateways': [
             {
                 'host': '127.0.0.1',
                 'port': 5020,
-                'configured_devices': [
-                    {'unit': 1, 'table_ids': [1,2,6]},
-                    {'unit': 2, 'table_ids': [1,2]},
+                'label': 'Gateway 1',
+                'devices': [
+                    {'unit': 1, 'label': 'Device One',
+                     'tables': [
+                          {'id': 1, 'label': 'Table One',
+                           'registers': [
+                               {
+                                   'address': 0xC550,
+                                   'label': 'Current or something',
+                                   'range': (-100,100)
+                               },
+                           ]
+                          },
+                          {'id': 2, 'label': 'Table Two',
+                           'registers': []
+                          }
+                     ],
+                    },
+                    {'unit': 2, 'label': 'Device Two',
+                     'tables': [
+                          {'id': 1, 'label': 'Table One',
+                           'registers': []
+                          },
+                     ]
+                    },
                 ]
             },
             {
                 'host': '192.168.0.101',
                 'port': 502,
-                'configured_devices': [
-                    {'unit': 5, 'table_ids': [1,2,6]},
-                    {'unit': 6, 'table_ids': []},
-                ]
-
+                'label': 'Gateway 2',
+                'devices': []
             }
         ]
     }
@@ -75,13 +94,27 @@ def test_cleanup_recordings_raise_exceptions_on_error():
     nose.assert_raises(jem_exceptions.PersistenceException,
                        repo.cleanup_recordings)
 
-def _configured_device():
-    return domain.ConfiguredDevice(
-            unit=10,
-            table_ids=[1,2,6])
+def _stub_register():
+    return domain.Register(
+            address=0xC550,
+            label='Current CT1',
+            range=(-2147483648, 2147483647))
 
-def _configured_gateway():
-    return domain.ConfiguredGateway(
+def _stub_table():
+    return domain.Table(
+            id=1,
+            label="Current Measurements",
+            registers = [_stub_register()])
+
+def _stub_device():
+    return domain.Device(
+            unit=10,
+            label='A Device Label',
+            tables=[_stub_table()])
+
+def _stub_gateway():
+    return domain.Gateway(
             host="127.0.0.1",
             port=5020,
-            configured_devices=[_configured_device()])
+            label='A Gateway Label',
+            devices=[_stub_device()])

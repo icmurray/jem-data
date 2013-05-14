@@ -11,11 +11,14 @@ def test_start_recording():
     manager = trm.TableRequestManager(queues, config, instructions)
 
     recording = _stub_recording()
-    gateway = domain.Gateway("127.0.0.1", 5020, label=None)
+
+    expected_gateway = domain.GatewayAddr("127.0.0.1", 5020)
+    expected_device = domain.DeviceAddr(expected_gateway, 10)
     expected_tables = [
-            (domain.Device(unit=10, gateway=gateway, label=None, tables=[]), 1),
-            (domain.Device(unit=10, gateway=gateway, label=None, tables=[]), 2),
-            (domain.Device(unit=10, gateway=gateway, label=None, tables=[]), 3)]
+        domain.TableAddr(expected_device, 1),
+        domain.TableAddr(expected_device, 2),
+        domain.TableAddr(expected_device, 3)
+    ]
 
     expected_instruction = trm._ResetRequests(tables=expected_tables)
     manager.start_recording(recording)
@@ -27,14 +30,20 @@ def _stub_recording():
             status='running',
             start_time=time.time(),
             end_time=None,
-            configured_gateways=[_stub_configured_gateway()])
+            gateways=[_stub_gateway()])
 
-def _stub_configured_gateway():
-    return domain.ConfiguredGateway(
+def _stub_gateway():
+    return domain.Gateway(
             host="127.0.0.1", port=5020,
-            configured_devices=[_stub_configured_device()])
+            label="Custom Label",
+            devices=[_stub_device()])
 
-def _stub_configured_device():
-    return domain.ConfiguredDevice(
+def _stub_device():
+    return domain.Device(
             unit=10,
-            table_ids=[1,2,3])
+            label='Custom Device Label',
+            tables=[
+                domain.Table(id=1, label=None, registers=[]),
+                domain.Table(id=2, label=None, registers=[]),
+                domain.Table(id=3, label=None, registers=[])
+            ])
