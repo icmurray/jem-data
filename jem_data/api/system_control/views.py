@@ -1,4 +1,3 @@
-import itertools
 import json
 import time
 
@@ -9,6 +8,7 @@ import jem_data.core.domain as domain
 import jem_data.util as util
 import jem_data.core.exceptions as jem_exceptions
 import jem_data.dal.json_marshalling as json_marshalling
+import jem_data.diris.devices as devices
 
 ValidationException = jem_exceptions.ValidationException
 
@@ -71,11 +71,12 @@ def attached_devices():
 @system_control.route('/attached-devices', methods=['PUT'])
 def configure_attached_devices():
     '''Bulk update of configured devices.'''
-    gateways = flask.request.json
     try:
-        devices = _unmarshall_gateways(gateways)
+        config = flask.request.json
+        _validate_gateway_config(config)
+        gateways = _merge_config_with_defaults(config)
         updated = flask.current_app.system_control_service.update_gateways(
-            devices
+            gateways
         )
 
         return flask.jsonify(gateways=_marshall_gateways(updated))
@@ -101,3 +102,81 @@ def _unmarshall_gateways(gateways):
         raise ValidationException, str(e)
     except TypeError, e:
         raise ValidationException, str(e)
+
+def _validate_gateway_config(config):
+    for gateway in config:
+        required_keys = set('host port label devices'.split())
+        actual_keys = set(gateway.keys())
+        if not required_keys <= actual_keys:
+            raise ValidationException, "Gateway data requires keys: %r" % (
+                                            required_keys - actual_keys)
+        for device in gateway['devices']:
+            required_keys = set('unit label type'.split())
+            actual_keys = set(device.keys())
+            if not required_keys <= actual_keys:
+                raise (ValidationException,
+                       "Gateway data requires keys: %r" % (
+                            required_keys - actual_keys))
+
+def _merge_config_with_defaults(config):
+    config = config[:]
+    default_device_configs = devices.ALL
+    for gateway in config:
+        for device in gateway['devices']:
+            if device['type'] not in default_device_configs:
+                raise (ValidationException,
+                        "Unknown device type: %s" % device['type'])
+
+            table_defaults = dict(
+                (t['id'], t) for t in util.deep_asdict(
+                    default_device_configs[device['type']]))
+
+            table_overrides = dict(
+                (t['id'], t) for t in device.get('tables', []))
+
+            _merge_tables(table_defaults, table_overrides)
+            device['tables'] = table_defaults.values()
+
+    gateways = _unmarshall_gateways(config)
+    return gateways
+
+def _merge_tables(defaults, overrides):
+    '''Merges two dictionaries representing Tables.
+
+    Only certain fields are overridable, and the registers need to be
+    overridden carefully.
+
+    Updates the default table in-place with the overridden values.
+    '''
+
+    _merge_by_field(defaults, overrides, overridable_fields=['label'])
+    for id, t in defaults.items():
+        if id in overrides:
+            if 'registers' in overrides[id]:
+                default_registers = dict(
+                        (r['address'], r) for r in t['registers'])
+
+                overrides_registers = dict(
+                        (r['address'], r) for r in overrides[id]['registers'])
+
+                if not set(overrides_registers.keys()) <= set(default_registers.keys()):
+                    non_permissable_addresses = (
+                        set(overrides_registers.keys()) - 
+                        set(default_registers.keys()))
+                    raise ValidationException(
+                        "Non permissable keys in table %d: %r" % (
+                            id, non_permissable_addresses))
+
+                _merge_by_field(default_registers,
+                                overrides_registers,
+                                overridable_fields=['label', 'range'])
+                t['registers'] = default_registers.values()
+
+def _merge_by_field(defaults, overrides, overridable_fields):
+    for id, r in defaults.items():
+        if id in overrides:
+            for field in overridable_fields:
+                if field in overrides[id] and \
+                        overrides[id][field] is not None:
+                    r[field] = overrides[id][field]
+

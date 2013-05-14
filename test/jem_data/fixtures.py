@@ -1,5 +1,6 @@
 import jem_data.core.domain as domain
-import jem_data.diris.registers as registers
+import jem_data.diris.devices as devices
+import jem_data.util as util
 
 def stub_gateways():
     devices = [
@@ -48,20 +49,7 @@ def raw_gateway_data():
     ]
 
 def _a40_tables():
-    return [ 
-        domain.Table(
-            id=i,
-            label=None,
-            registers=[
-                domain.Register(addr, None, (0,100)) \
-                        for addr in sorted(registers.TABLES[i-1].keys()) ]
-        ) for i in xrange(1, 7) ]
+    return devices.A40
 
 def _raw_a40_tables():
-    return [
-        {
-            'id': i,
-            'label': None,
-            'registers': [{'address': addr, 'label': None, 'range': (0,100)} \
-                        for addr in sorted(registers.TABLES[i-1].keys()) ]
-        } for i in xrange(1, 7) ]
+    return util.deep_asdict(devices.A40)

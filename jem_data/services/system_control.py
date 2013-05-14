@@ -4,11 +4,12 @@ import threading
 import pymongo
 
 import jem_data.core.domain as domain
+import jem_data.core.exceptions as jem_exceptions
 import jem_data.core.mongo_sink as mongo_sink
 import jem_data.core.table_reader as table_reader
 import jem_data.core.table_request_manager as table_request_manager
 import jem_data.dal as dal
-import jem_data.core.exceptions as jem_exceptions
+import jem_data.diris as diris
 
 ValidationException = jem_exceptions.ValidationException
 SystemConflict = jem_exceptions.SystemConflict
