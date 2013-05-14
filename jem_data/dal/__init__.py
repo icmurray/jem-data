@@ -28,7 +28,7 @@ class GatewayRepository(object):
         self._collection.insert(map(util.deep_asdict, gateways))
 
     def all(self):
-        return [ util.unmarshall_gateway(d) for d in self._collection.find() ]
+        return [ json_marshalling.unmarshall_gateway(d) for d in self._collection.find() ]
 
 class RecordingsRepository(object):
 
