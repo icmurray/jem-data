@@ -47,13 +47,13 @@ def _stub_gateways():
                        label=None, devices=devices[1])
     ]
 
-    return (gateways, devices)
+    return gateways
 
-def test_retrieving_list_of_attached_devices():
+def test_retrieving_list_of_attached_gateways():
     gateways = _stub_gateways()
 
     system_control_service = mock.Mock()
-    system_control_service.attached_devices.return_value = gateways
+    system_control_service.attached_gateways.return_value = gateways
     app = api.app_factory(system_control_service).test_client()
     response = app.get('/system-control/attached-devices')
     nose.assert_equal(200, response.status_code)
@@ -62,11 +62,11 @@ def test_retrieving_list_of_attached_devices():
     nose.assert_equal(len(data['gateways'][0]['devices']), 2)
     nose.assert_equal(len(data['gateways'][1]['devices']), 3)
 
-def test_updating_list_of_attached_devices():
+def test_updating_list_of_attached_gateways():
     gateways = _stub_gateways()
 
     system_control_service = mock.Mock()
-    system_control_service.update_devices.return_value = gateways
+    system_control_service.update_gateways.return_value = gateways
     app = api.app_factory(system_control_service).test_client()
     response = app.put('/system-control/attached-devices',
         data=json.dumps([
@@ -92,7 +92,7 @@ def test_updating_list_of_attached_devices():
         ]),
         content_type='application/json')
     nose.assert_equal(200, response.status_code)
-    system_control_service.update_devices.assert_called_once_with(gateways)
+    system_control_service.update_gateways.assert_called_once_with(gateways)
     data = json.loads(response.data)
     nose.assert_equal(2, len(data['gateways']))
     nose.assert_equal(len(data['gateways'][0]['devices']), 2)

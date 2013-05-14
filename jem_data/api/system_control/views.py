@@ -8,6 +8,7 @@ import jem_data
 import jem_data.core.domain as domain
 import jem_data.util as util
 import jem_data.core.exceptions as jem_exceptions
+import jem_data.dal.json_marshalling as json_marshalling
 
 ValidationException = jem_exceptions.ValidationException
 
@@ -28,7 +29,7 @@ def list_recordings():
 @system_control.route('/recordings', methods=['POST'])
 def start_recording():
     configured_gateways = map(
-            jem_data.dal.json_marshalling.extract_configured_gateway,
+            jem_data.dal.json_marshalling.unmarshall_gateway,
             flask.request.json)
     recording = domain.Recording(
             id=None,
@@ -64,21 +65,20 @@ def stop_recording(recording_id):
 
 @system_control.route('/attached-devices', methods=['GET'])
 def attached_devices():
-    devices = flask.current_app.system_control_service.attached_devices()
-    gateways = _marshall_device_list(devices)
-    return flask.jsonify(gateways=gateways)
+    gateways = flask.current_app.system_control_service.attached_gateways()
+    return flask.jsonify(gateways=_marshall_gateways(gateways))
 
 @system_control.route('/attached-devices', methods=['PUT'])
 def configure_attached_devices():
     '''Bulk update of configured devices.'''
     gateways = flask.request.json
     try:
-        devices = _unmarshall_device_list(gateways)
-        updated = flask.current_app.system_control_service.update_devices(
+        devices = _unmarshall_gateways(gateways)
+        updated = flask.current_app.system_control_service.update_gateways(
             devices
         )
 
-        return flask.jsonify(gateways=_marshall_device_list(updated))
+        return flask.jsonify(gateways=_marshall_gateways(updated))
     except ValidationException, e:
         flask.abort(400)
 
@@ -91,39 +91,15 @@ def system_status():
 def setup_system():
     flask.current_app.system_control_service.setup()
 
-def _marshall_device_list(devices):
-    '''REST API's device list representation'''
+def _marshall_gateways(gateways):
+    '''REST API's gateway list representation'''
 
-    def get_gateway(d):
-        return d.gateway
+    return map(util.deep_asdict, gateways)
 
-    ds = sorted(devices, key=get_gateway)
-    gateways = []
-    for gateway, devices in itertools.groupby(ds, get_gateway):
-        gw_dict = util.deep_asdict(gateway)
-        dev_dics = map(util.deep_asdict, devices)
-        gw_dict['devices'] = dev_dics
-        gateways.append(gw_dict)
-
-    return gateways
-
-def _unmarshall_device_list(gateways):
-    '''Unpick devices from list of gateways'''
+def _unmarshall_gateways(gateways):
+    '''REST API's gateway list representation'''
     try:
-        devices = []
-        for gw_dict in gateways:
-            gateway = domain.Gateway(
-                    host=gw_dict['host'],
-                    port=gw_dict['port'],
-                    label=None)
-            for dev_dict in gw_dict['devices']:
-                d = domain.Device(
-                        gateway=gateway,
-                        unit=dev_dict['unit'],
-                        label=None,
-                        tables=[])
-                devices.append(d)
-        return devices
+        return [json_marshalling.unmarshall_gateway(g) for g in gateways]
     except KeyError, e:
         raise ValidationException, str(e)
     except TypeError, e:

@@ -8,12 +8,12 @@ import jem_data.core.exceptions as jem_exceptions
 
 ValidationException = jem_exceptions.ValidationException
 
-def test_update_devices_validates_gateway_host():
+def test_update_gateways_validates_gateway_host():
     system_control = services.SystemControlService(mock.Mock())
 
     gateway = domain.Gateway(host=123, port=456, label=None, devices=[])
     nose.assert_raises(ValidationException,
-                  system_control.update_devices,
+                  system_control.update_gateways,
                   [gateway])
 
 def test_update_validates_gateway_port():
@@ -23,7 +23,7 @@ def test_update_validates_gateway_port():
                              label=None,
                              devices=[])
     nose.assert_raises(ValidationException,
-                  system_control.update_devices,
+                  system_control.update_gateways,
                   [gateway])
 
 def test_update_validates_device_unit():
@@ -40,7 +40,7 @@ def test_update_validates_device_unit():
             ])
 
     nose.assert_raises(ValidationException,
-                  system_control.update_devices,
+                  system_control.update_gateways,
                   [gateway])
 
 def test_update_validates_device_unit_range():
@@ -56,7 +56,7 @@ def test_update_validates_device_unit_range():
                     tables=[])
             ])
     nose.assert_raises(ValidationException,
-                       system_control.update_devices,
+                       system_control.update_gateways,
                        [gateway])
 
 def test_update_with_valid_data():
@@ -72,22 +72,22 @@ def test_update_with_valid_data():
                     label=None,
                     tables=[])
             ])
-    system_control.update_devices([gateway])
+    system_control.update_gateways([gateway])
 
-    db.devices.delete_all.assert_called_once_with()
-    db.devices.insert.assert_called_once_with([gateway])
-    db.devices.all.assert_called_once_with()
+    db.gateways.delete_all.assert_called_once_with()
+    db.gateways.insert.assert_called_once_with([gateway])
+    db.gateways.all.assert_called_once_with()
 
 def test_update_fills_in_missing_configuration_data_with_defaults():
     raise nose_core.SkipTest, "[PENDING]"
 
-def test_attached_devices():
+def test_attached_gateways():
     db = mock.Mock()
     system_control = services.SystemControlService(db)
-    system_control.attached_devices()
-    db.devices.all.assert_called_once_with()
+    system_control.attached_gateways()
+    db.gateways.all.assert_called_once_with()
 
-def test_all_recordings():
+def tesgatewaysecordings():
     db = mock.Mock()
     system_control = services.SystemControlService(db)
     db.recordings.all.return_value = [

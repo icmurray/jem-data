@@ -77,11 +77,11 @@ class SystemControlService(object):
             updated_recording = self._db.recordings.end_recording(recording_id)
             return updated_recording
 
-    def attached_devices(self):
-        '''Returns the list of `Device`s that the system is currently
+    def attached_gateways(self):
+        '''Returns the list of `Gateway`s that the system is currently
         configured with
         '''
-        return self._db.devices.all()
+        return self._db.gateways.all()
 
     def all_recordings(self):
         '''List of all recordings.  Sorted by start date.'''
@@ -99,24 +99,23 @@ class SystemControlService(object):
         with self._status_lock:
             return self._status.copy()
 
-    def update_devices(self, devices):
-        '''Updates the configured devices in bulk.
+    def update_gateways(self, gateways):
+        '''Updates the configured gateways in bulk.
 
         Return the updated list if successful.  Otherwise, if validation
         fails, a `ValueError` is raised.
         '''
-        for d in devices:
-            self._validate_device(d)
-        self._db.devices.delete_all()
-        self._db.devices.insert(devices)
-        return self.attached_devices()
+        for g in gateways:
+            self._validate_gateway(g)
+        self._db.gateways.delete_all()
+        self._db.gateways.insert(gateways)
+        return self.attached_gateways()
 
     def _validate_device(self, device):
         if not isinstance(device.unit, int):
             raise ValidationException, "Expected unit to be an integer"
         if not (0 < device.unit <= 31):
             raise ValidationException, "Unit lies outside valid range (1-31)"
-        self._validate_gateway(device.gateway)
 
     def _validate_gateway(self, gateway):
         if not isinstance(gateway.host, basestring):
@@ -125,12 +124,14 @@ class SystemControlService(object):
             raise ValidationException, "Expected port to be an integer"
         if gateway.port <= 0:
             raise ValidationException, "Expected port to be positive"
+        for device in gateway.devices:
+            self._validate_device(device)
 
 def _setup_system():
     request_queue = multiprocessing.Queue()
     results_queue = multiprocessing.Queue()
 
-    gateway_info = domain.Gateway(
+    gateway_info = domain.GatewayAddr(
             host="127.0.0.1",
             port=5020)
 
@@ -144,7 +145,7 @@ def _setup_system():
     for table in xrange(1,3):
         for unit in [0x01]:
         #for unit in [0x01, 0x02]:
-            device = domain.Device(gateway_info, unit)
+            device = domain.DeviceAddr(gateway_info, unit)
             config[(device, table)] = 0.5
 
     manager = table_request_manager.start_manager(qs, config)

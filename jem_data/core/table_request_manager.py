@@ -42,19 +42,13 @@ class TableRequestManager(multiprocessing.Process):
         '''Resets the current config to only request the given tables.
         '''
         tables = []
-        for gateway in recording.configured_gateways:
-            for device in gateway.configured_devices:
-                for table_id in device.table_ids:
-                    tables.append((
-                        domain.Device(
-                            unit=device.unit,
-                            gateway=domain.Gateway(
-                                host=gateway.host,
-                                port=gateway.port,
-                                label=None),
-                            label=None,
-                            tables=[]),
-                        table_id))
+        for gateway in recording.gateways:
+            gateway_addr = domain.GatewayAddr(gateway.host, gateway.port)
+            for device in gateway.devices:
+                device_addr = domain.DeviceAddr(gateway_addr, device.unit)
+                for table in device.tables:
+                    tables.append(domain.TableAddr(device_addr, table.id))
+
         self._instructions.put(_ResetRequests(tables=tables))
 
     def stop_requests(self):
@@ -74,6 +68,7 @@ class TableRequestManager(multiprocessing.Process):
     def _run_push_table_request_task(self, task):
         device, table_id = task.device, task.table_id
         if self._sending_requests:
+            print "Making request to %s : %s" % (device, table_id)
             q = self._queues[device.gateway]
             req = messages.ReadTableMsg(
                     device = device,
