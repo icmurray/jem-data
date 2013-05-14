@@ -92,12 +92,9 @@ def setup_system():
     flask.current_app.system_control_service.setup()
 
 def _marshall_gateways(gateways):
-    '''REST API's gateway list representation'''
-
     return map(util.deep_asdict, gateways)
 
 def _unmarshall_gateways(gateways):
-    '''REST API's gateway list representation'''
     try:
         return [json_marshalling.unmarshall_gateway(g) for g in gateways]
     except KeyError, e:
