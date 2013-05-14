@@ -4,6 +4,7 @@ import nose.tools as nose
 
 import jem_data.api as api
 import jem_data.core.domain as domain
+import test.jem_data.fixtures as fixtures
 
 ## def test_system_start():
 ##     system_control_service = mock.Mock()
@@ -26,31 +27,8 @@ def test_system_setup_called_once_only():
     app.post('/system-control/start')
     system_control_service.setup.assert_called_once_with()
 
-def _stub_gateways():
-    devices = [
-        [
-            domain.Device(0x01, label=None, tables=[]),
-            domain.Device(0x02, label='Custom Label', tables=[]),
-        ],
-        [
-            domain.Device(0x01, label=None, tables=[]),
-            domain.Device(0x02, label=None, tables=[]),
-            domain.Device(0x03, label=None, tables=[]),
-        ]
-    ]
-
-    gateways = [
-        domain.Gateway("127.0.0.1", 5020,
-                       label='Gateway 1', devices=devices[0]),
-
-        domain.Gateway("192.168.0.101", 502,
-                       label=None, devices=devices[1])
-    ]
-
-    return gateways
-
 def test_retrieving_list_of_attached_gateways():
-    gateways = _stub_gateways()
+    gateways = fixtures.stub_gateways()
 
     system_control_service = mock.Mock()
     system_control_service.attached_gateways.return_value = gateways
@@ -63,7 +41,7 @@ def test_retrieving_list_of_attached_gateways():
     nose.assert_equal(len(data['gateways'][1]['devices']), 3)
 
 def test_updating_list_of_attached_gateways():
-    gateways = _stub_gateways()
+    gateways = fixtures.stub_gateways()
 
     system_control_service = mock.Mock()
     system_control_service.update_gateways.return_value = gateways
@@ -92,7 +70,7 @@ def test_updating_list_of_attached_gateways():
         ]),
         content_type='application/json')
     nose.assert_equal(200, response.status_code)
-    system_control_service.update_gateways.assert_called_once_with(gateways)
+    system_control_service.update_gateways.assert_called_once_with(mock.ANY)
     data = json.loads(response.data)
     nose.assert_equal(2, len(data['gateways']))
     nose.assert_equal(len(data['gateways'][0]['devices']), 2)
@@ -128,6 +106,6 @@ def _empty_recording(i):
     return domain.Recording(
             id=None,
             status=None,
-            gateways=_stub_gateways(),
+            gateways=fixtures.stub_gateways(),
             end_time=None,
             start_time=i)

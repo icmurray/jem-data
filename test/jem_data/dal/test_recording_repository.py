@@ -5,6 +5,7 @@ import time
 import jem_data.core.domain as domain
 import jem_data.core.exceptions as jem_exceptions
 import jem_data.dal as dal
+import test.jem_data.fixtures as fixtures
 
 def test_create():
 
@@ -17,7 +18,7 @@ def test_create():
     recording = domain.Recording(
             id=None,
             status='running',
-            gateways=[_stub_gateway()],
+            gateways=fixtures.stub_gateways(),
             start_time=time.time(),
             end_time=None)
     updated_value = repo.create(recording)
@@ -93,28 +94,3 @@ def test_cleanup_recordings_raise_exceptions_on_error():
     repo = dal.RecordingsRepository(db)
     nose.assert_raises(jem_exceptions.PersistenceException,
                        repo.cleanup_recordings)
-
-def _stub_register():
-    return domain.Register(
-            address=0xC550,
-            label='Current CT1',
-            range=(-2147483648, 2147483647))
-
-def _stub_table():
-    return domain.Table(
-            id=1,
-            label="Current Measurements",
-            registers = [_stub_register()])
-
-def _stub_device():
-    return domain.Device(
-            unit=10,
-            label='A Device Label',
-            tables=[_stub_table()])
-
-def _stub_gateway():
-    return domain.Gateway(
-            host="127.0.0.1",
-            port=5020,
-            label='A Gateway Label',
-            devices=[_stub_device()])

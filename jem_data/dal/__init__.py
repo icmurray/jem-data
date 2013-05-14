@@ -3,7 +3,6 @@ import time
 import bson.objectid as objectid
 import pymongo
 
-import jem_data.core.domain as domain
 import jem_data.core.exceptions as jem_exceptions
 import json_marshalling
 import jem_data.util as util
