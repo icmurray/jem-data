@@ -24,6 +24,29 @@ def stub_gateways():
 
     return gateways
 
+def raw_gateway_data():
+    return [
+        {
+            'host': '127.0.0.1',
+            'port': 5020,
+            'label': 'Gateway 1',
+            'devices': [
+                {'unit': 1, 'label': None, 'tables': _raw_a40_tables() },
+                {'unit': 2, 'label': 'Custom Label', 'tables': _raw_a40_tables() },
+            ],
+        },
+        {
+            'host': '192.168.0.101',
+            'port': 502,
+            'label': None,
+            'devices': [
+                {'unit': 1, 'label': None, 'tables': _raw_a40_tables() },
+                {'unit': 2, 'label': None, 'tables': _raw_a40_tables() },
+                {'unit': 3, 'label': None, 'tables': _raw_a40_tables() },
+            ],
+        },
+    ]
+
 def _a40_tables():
     return [ 
         domain.Table(
@@ -33,3 +56,12 @@ def _a40_tables():
                 domain.Register(addr, None, (0,100)) \
                         for addr in sorted(registers.TABLES[i-1].keys()) ]
         ) for i in xrange(1, 7) ]
+
+def _raw_a40_tables():
+    return [
+        {
+            'id': i,
+            'label': None,
+            'registers': [{'address': addr, 'label': None, 'range': (0,100)} \
+                        for addr in sorted(registers.TABLES[i-1].keys()) ]
+        } for i in xrange(1, 7) ]

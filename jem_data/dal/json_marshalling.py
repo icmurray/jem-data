@@ -17,7 +17,22 @@ def unmarshall_gateway(gw_data):
         raise jem_exceptions.ValidationException(str(e))
 
 def unmarshall_device(device_data):
-    return domain.Device(**device_data)
+    return domain.Device(
+            unit=device_data['unit'],
+            label=device_data['label'],
+            tables=map(unmarshall_table, device_data['tables']))
+
+def unmarshall_table(table_data):
+    return domain.Table(
+            id=table_data['id'],
+            label=table_data['label'],
+            registers=map(unmarshall_register, table_data['registers']))
+
+def unmarshall_register(register_data):
+    return domain.Register(
+            address=register_data['address'],
+            label=register_data['label'],
+            range=tuple(register_data['range']))
 
 def unmarshall_recording(recording_data):
     return domain.Recording(

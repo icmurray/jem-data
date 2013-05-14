@@ -47,30 +47,11 @@ def test_updating_list_of_attached_gateways():
     system_control_service.update_gateways.return_value = gateways
     app = api.app_factory(system_control_service).test_client()
     response = app.put('/system-control/attached-devices',
-        data=json.dumps([
-            {
-                'host': '127.0.0.1',
-                'port': 5020,
-                'label': 'Gateway 1',
-                'devices': [
-                    {'unit': 1, 'label': None, 'tables': [] },
-                    {'unit': 2, 'label': 'Custom Label', 'tables': [] },
-                ],
-            },
-            {
-                'host': '192.168.0.101',
-                'port': 502,
-                'label': None,
-                'devices': [
-                    {'unit': 1, 'label': None, 'tables': [] },
-                    {'unit': 2, 'label': None, 'tables': [] },
-                    {'unit': 3, 'label': None, 'tables': [] },
-                ],
-            },
-        ]),
+        data=json.dumps(fixtures.raw_gateway_data()),
         content_type='application/json')
     nose.assert_equal(200, response.status_code)
-    system_control_service.update_gateways.assert_called_once_with(mock.ANY)
+    system_control_service.update_gateways.assert_called_once_with(
+        fixtures.stub_gateways())
     data = json.loads(response.data)
     nose.assert_equal(2, len(data['gateways']))
     nose.assert_equal(len(data['gateways'][0]['devices']), 2)
