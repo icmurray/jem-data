@@ -36,6 +36,7 @@ def test_update_validates_device_unit():
                 domain.Device(
                     unit="1",
                     label=None,
+                    type='diris.a40',
                     tables=[])
             ])
 
@@ -53,6 +54,7 @@ def test_update_validates_device_unit_range():
                 domain.Device(
                     unit=32,
                     label=None,
+                    type='diris.a40',
                     tables=[])
             ])
     nose.assert_raises(ValidationException,
@@ -70,6 +72,7 @@ def test_update_with_valid_data():
                 domain.Device(
                     unit=1,
                     label=None,
+                    type='diris.a40',
                     tables=[])
             ])
     system_control.update_gateways([gateway])

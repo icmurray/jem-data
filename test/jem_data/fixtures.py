@@ -5,13 +5,13 @@ import jem_data.util as util
 def stub_gateways():
     devices = [
         [
-            domain.Device(0x01, label=None, tables=_a40_tables()),
-            domain.Device(0x02, label='Custom Label', tables=_a40_tables()),
+            domain.Device(0x01, label=None, type="diris.a40", tables=_a40_tables()),
+            domain.Device(0x02, label='Custom Label', type="diris.a40", tables=_a40_tables()),
         ],
         [
-            domain.Device(0x01, label=None, tables=_a40_tables()),
-            domain.Device(0x02, label=None, tables=_a40_tables()),
-            domain.Device(0x03, label=None, tables=_a40_tables()),
+            domain.Device(0x01, label=None, type="diris.a40", tables=_a40_tables()),
+            domain.Device(0x02, label=None, type="diris.a40", tables=_a40_tables()),
+            domain.Device(0x03, label=None, type="diris.a40", tables=_a40_tables()),
         ]
     ]
 
@@ -32,8 +32,8 @@ def raw_gateway_data():
             'port': 5020,
             'label': 'Gateway 1',
             'devices': [
-                {'unit': 1, 'label': None, 'tables': _raw_a40_tables() },
-                {'unit': 2, 'label': 'Custom Label', 'tables': _raw_a40_tables() },
+                {'unit': 1, 'label': None, 'type': 'diris.a40','tables': _raw_a40_tables() },
+                {'unit': 2, 'label': 'Custom Label', 'type': 'diris.a40', 'tables': _raw_a40_tables() },
             ],
         },
         {
@@ -41,9 +41,9 @@ def raw_gateway_data():
             'port': 502,
             'label': None,
             'devices': [
-                {'unit': 1, 'label': None, 'tables': _raw_a40_tables() },
-                {'unit': 2, 'label': None, 'tables': _raw_a40_tables() },
-                {'unit': 3, 'label': None, 'tables': _raw_a40_tables() },
+                {'unit': 1, 'label': None, 'type': 'diris.a40', 'tables': _raw_a40_tables() },
+                {'unit': 2, 'label': None, 'type': 'diris.a40', 'tables': _raw_a40_tables() },
+                {'unit': 3, 'label': None, 'type': 'diris.a40', 'tables': _raw_a40_tables() },
             ],
         },
     ]

@@ -20,6 +20,7 @@ def unmarshall_device(device_data):
     return domain.Device(
             unit=device_data['unit'],
             label=device_data['label'],
+            type=device_data['type'],
             tables=map(unmarshall_table, device_data['tables']))
 
 def unmarshall_table(table_data):

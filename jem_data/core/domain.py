@@ -47,7 +47,7 @@ Table = collections.namedtuple(
 
 Device = collections.namedtuple(
         'Device',
-        'unit label tables')
+        'unit label type tables')
 
 Gateway = collections.namedtuple(
         'Gateway',

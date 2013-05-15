@@ -42,6 +42,7 @@ def _stub_device():
     return domain.Device(
             unit=10,
             label='Custom Device Label',
+            type='diris.a40',
             tables=[
                 domain.Table(id=1, label=None, registers=[]),
                 domain.Table(id=2, label=None, registers=[]),

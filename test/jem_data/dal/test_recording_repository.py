@@ -39,7 +39,7 @@ def test_all():
                 'port': 5020,
                 'label': 'Gateway 1',
                 'devices': [
-                    {'unit': 1, 'label': 'Device One',
+                    {'unit': 1, 'label': 'Device One', 'type': 'diris.a40',
                      'tables': [
                           {'id': 1, 'label': 'Table One',
                            'registers': [
@@ -55,7 +55,7 @@ def test_all():
                           }
                      ],
                     },
-                    {'unit': 2, 'label': 'Device Two',
+                    {'unit': 2, 'label': 'Device Two', 'type': 'diris.a40',
                      'tables': [
                           {'id': 1, 'label': 'Table One',
                            'registers': []
