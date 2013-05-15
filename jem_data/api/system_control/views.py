@@ -99,23 +99,23 @@ def _unmarshall_gateways(gateways):
     try:
         return [json_marshalling.unmarshall_gateway(g) for g in gateways]
     except KeyError, e:
-        raise ValidationException, str(e)
+        raise ValidationException(str(e))
     except TypeError, e:
-        raise ValidationException, str(e)
+        raise ValidationException(str(e))
 
 def _validate_gateway_config(config):
     for gateway in config:
         required_keys = set('host port label devices'.split())
         actual_keys = set(gateway.keys())
         if not required_keys <= actual_keys:
-            raise ValidationException, "Gateway data requires keys: %r" % (
-                                            required_keys - actual_keys)
+            raise ValidationException("Gateway data requires keys: %r" % (
+                                            required_keys - actual_keys))
         for device in gateway['devices']:
             required_keys = set('unit label type'.split())
             actual_keys = set(device.keys())
             if not required_keys <= actual_keys:
-                raise (ValidationException,
-                       "Gateway data requires keys: %r" % (
+                raise ValidationException(
+                       "Device data requires keys: %r" % (
                             required_keys - actual_keys))
 
 def _merge_config_with_defaults(config):
@@ -124,7 +124,7 @@ def _merge_config_with_defaults(config):
     for gateway in config:
         for device in gateway['devices']:
             if device['type'] not in default_device_configs:
-                raise (ValidationException,
+                raise ValidationException(
                         "Unknown device type: %s" % device['type'])
 
             table_defaults = dict(
