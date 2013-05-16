@@ -57,6 +57,25 @@ Recording = collections.namedtuple(
         'Recording',
         'id status gateways start_time end_time')
 
+#-----------------------------------------------------------------------------
+# These domain models represent the configuration required to start a new
+# Recording.
+#
+# Essentially, the user selects the tables she wishes to record.
+#-----------------------------------------------------------------------------
+
+RecordingConfig = collections.namedtuple(
+        'RecordingConfig',
+        'gateway_recording_configs')
+
+GatewayRecordingConfig = collections.namedtuple(
+        'GatewayRecordingConfig',
+        'host port device_recording_configs')
+
+DeviceRecordingConfig = collections.namedtuple(
+        'DeviceRecordingConfig',
+        'unit table_ids')
+
 class TimingInfo(collections.namedtuple('TimingInfo', 'start end')):
     __slots__ = ()
 

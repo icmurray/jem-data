@@ -43,8 +43,9 @@ def _insert_into_collection(msgs, mongo_collection):
 
     # Rename a few fields, and promote some data up a level.
     for d in ds:
-        d['device'] = d['table_id']['device_addr']
+        d['device'] = d['table_addr']['device_addr']
         d['device']['gateway'] = d['device']['gateway_addr']
         del d['device']['gateway_addr']
-        d['table_id'] = d['table_id']['id']
+        d['table_id'] = d['table_addr']['id']
+        del d['table_addr']
     mongo_collection.insert(ds)

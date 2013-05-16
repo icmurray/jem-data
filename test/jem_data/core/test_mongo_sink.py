@@ -13,11 +13,11 @@ def test_writing_response_messages():
 
     gateway_addr = domain.GatewayAddr(host="127.0.0.1", port=502)
     device_addr = domain.DeviceAddr(gateway_addr, 2)
-    table_id = domain.TableAddr(device_addr, 3)
+    table_addr = domain.TableAddr(device_addr, 3)
 
     msgs = [
         messages.ResponseMsg(
-            table_id = table_id,
+            table_addr = table_addr,
             values = [(0xC550, 5001), (0xC552, 5005)],
             timing_info = domain.TimingInfo(10000, 10001),
             error = None,

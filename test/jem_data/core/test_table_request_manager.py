@@ -6,9 +6,9 @@ import jem_data.core.table_request_manager as trm
 import jem_data.core.domain as domain
 
 def test_start_recording():
-    queues, config, instructions = mock.Mock(), mock.Mock(), mock.Mock()
+    queues, instructions = mock.Mock(), mock.Mock()
 
-    manager = trm.TableRequestManager(queues, config, instructions)
+    manager = trm.TableRequestManager(queues, instructions)
 
     recording = _stub_recording()
 

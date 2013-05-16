@@ -28,17 +28,12 @@ def list_recordings():
 
 @system_control.route('/recordings', methods=['POST'])
 def start_recording():
-    configured_gateways = map(
-            jem_data.dal.json_marshalling.unmarshall_gateway,
-            flask.request.json)
-    recording = domain.Recording(
-            id=None,
-            status='running',
-            configured_gateways = configured_gateways,
-            start_time=time.time(),
-            end_time=None)
+    recording_config = domain.RecordingConfig(
+            gateway_recording_configs=map(
+            jem_data.dal.json_marshalling.unmarshall_gateway_recording_config,
+            flask.request.json))
     try:
-        updated_recording = flask.current_app.system_control_service.start_recording(recording)
+        updated_recording = flask.current_app.system_control_service.start_recording(recording_config)
         return flask.make_response(json.dumps(util.deep_asdict(updated_recording)), 201)
     except jem_exceptions.SystemConflict, e:
         flask.abort(409)

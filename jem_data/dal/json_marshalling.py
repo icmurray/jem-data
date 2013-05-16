@@ -44,3 +44,15 @@ def unmarshall_recording(recording_data):
             start_time=recording_data['start_time'],
             end_time=recording_data['end_time'])
 
+def unmarshall_gateway_recording_config(config_data):
+    return domain.GatewayRecordingConfig(
+            host=config_data['host'],
+            port=config_data['port'],
+            device_recording_configs=map(
+                unmarshall_device_recording_config,
+                config_data['configured_devices']))
+
+def unmarshall_device_recording_config(config_data):
+    return domain.DeviceRecordingConfig(
+            unit=config_data['unit'],
+            table_ids=config_data['table_ids'])

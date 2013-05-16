@@ -8,8 +8,8 @@ import collections
 
 ReadTableMsg = collections.namedtuple(
         'ReadTableMsg',
-        'table_id')
+        'table_addr')
 
 ResponseMsg = collections.namedtuple(
         'ResponseMsg',
-        'table_id values timing_info error request_info')
+        'table_addr values timing_info error request_info')

@@ -1,5 +1,6 @@
 import multiprocessing
 import threading
+import time
 
 import pymongo
 
@@ -37,7 +38,7 @@ class SystemControlService(object):
         self._table_request_manager =  _setup_system()
         self._db.recordings.cleanup_recordings()
 
-    def start_recording(self, recording):
+    def start_recording(self, recording_config):
         '''Create a new recording, and start running it.
         '''
         with self._status_lock:
@@ -46,6 +47,48 @@ class SystemControlService(object):
                     "Cannot run more than one recording at a time. "
                     "Currently running: %s" % (
                         self._status['active_recordings']))
+
+            chosen_gateways = dict(
+                ((g.host, g.port), g) \
+                        for g in recording_config.gateway_recording_configs)
+            attached_gateways = self.attached_gateways()
+            if not (set(chosen_gateways.keys()) <=
+                    set((g.host, g.port) for g in attached_gateways)):
+                unknown = (set(chosen_gateways.keys()) -
+                           set((g.host, g.port) for g in attached_gateways))
+                raise ValidationException("Unknown gateways: %r" % unknown)
+
+            gateways = []
+            for gw in attached_gateways:
+                if (gw.host, gw.port) in chosen_gateways:
+
+                    chosen_gateway = chosen_gateways[(gw.host, gw.port)]
+                    chosen_devices = dict(
+                        (d.unit, d) \
+                            for d in chosen_gateway.device_recording_configs)
+
+                    devices = []
+                    for device in gw.devices:
+                        if device.unit in chosen_devices:
+                            chosen_device = chosen_devices[device.unit]
+
+                            chosen_tables = set(chosen_device.table_ids)
+                            active_tables = filter(
+                                lambda t: t.id in chosen_tables,
+                                device.tables)
+
+                            new_device = device._replace(tables=active_tables)
+                            devices.append(new_device)
+                    new_gw = gw._replace(devices=devices)
+                    gateways.append(new_gw)
+
+
+            recording = domain.Recording(
+                id=None,
+                status='running',
+                gateways=gateways,
+                start_time=time.time(),
+                end_time=None)
 
             new_recording = self._db.recordings.create(recording)
 
@@ -142,14 +185,7 @@ def _setup_system():
             gateway_info: request_queue
     }
 
-    config = {}
-    for table in xrange(1,3):
-        for unit in [0x01]:
-        #for unit in [0x01, 0x02]:
-            device = domain.DeviceAddr(gateway_info, unit)
-            config[(device, table)] = 0.5
-
-    manager = table_request_manager.start_manager(qs, config)
+    manager = table_request_manager.start_manager(qs)
 
     _setup_mongo_collections()
 
