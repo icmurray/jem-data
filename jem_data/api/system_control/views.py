@@ -1,4 +1,3 @@
-import itertools
 import json
 import time
 
@@ -8,6 +7,8 @@ import jem_data
 import jem_data.core.domain as domain
 import jem_data.util as util
 import jem_data.core.exceptions as jem_exceptions
+import jem_data.dal.json_marshalling as json_marshalling
+import jem_data.diris.devices as devices
 
 ValidationException = jem_exceptions.ValidationException
 
@@ -27,17 +28,12 @@ def list_recordings():
 
 @system_control.route('/recordings', methods=['POST'])
 def start_recording():
-    configured_gateways = map(
-            jem_data.dal.json_marshalling.extract_configured_gateway,
-            flask.request.json)
-    recording = domain.Recording(
-            id=None,
-            status='running',
-            configured_gateways = configured_gateways,
-            start_time=time.time(),
-            end_time=None)
+    recording_config = domain.RecordingConfig(
+            gateway_recording_configs=map(
+            jem_data.dal.json_marshalling.unmarshall_gateway_recording_config,
+            flask.request.json))
     try:
-        updated_recording = flask.current_app.system_control_service.start_recording(recording)
+        updated_recording = flask.current_app.system_control_service.start_recording(recording_config)
         return flask.make_response(json.dumps(util.deep_asdict(updated_recording)), 201)
     except jem_exceptions.SystemConflict, e:
         flask.abort(409)
@@ -64,21 +60,21 @@ def stop_recording(recording_id):
 
 @system_control.route('/attached-devices', methods=['GET'])
 def attached_devices():
-    devices = flask.current_app.system_control_service.attached_devices()
-    gateways = _marshall_device_list(devices)
-    return flask.jsonify(gateways=gateways)
+    gateways = flask.current_app.system_control_service.attached_gateways()
+    return flask.jsonify(gateways=_marshall_gateways(gateways))
 
 @system_control.route('/attached-devices', methods=['PUT'])
 def configure_attached_devices():
     '''Bulk update of configured devices.'''
-    gateways = flask.request.json
     try:
-        devices = _unmarshall_device_list(gateways)
-        updated = flask.current_app.system_control_service.update_devices(
-            devices
+        config = flask.request.json
+        _validate_gateway_config(config)
+        gateways = _merge_config_with_defaults(config)
+        updated = flask.current_app.system_control_service.update_gateways(
+            gateways
         )
 
-        return flask.jsonify(gateways=_marshall_device_list(updated))
+        return flask.jsonify(gateways=_marshall_gateways(updated))
     except ValidationException, e:
         flask.abort(400)
 
@@ -91,40 +87,91 @@ def system_status():
 def setup_system():
     flask.current_app.system_control_service.setup()
 
-def _marshall_device_list(devices):
-    '''REST API's device list representation'''
+def _marshall_gateways(gateways):
+    return map(util.deep_asdict, gateways)
 
-    def get_gateway(d):
-        return d.gateway
+def _unmarshall_gateways(gateways):
+    try:
+        return [json_marshalling.unmarshall_gateway(g) for g in gateways]
+    except KeyError, e:
+        raise ValidationException(str(e))
+    except TypeError, e:
+        raise ValidationException(str(e))
 
-    ds = sorted(devices, key=get_gateway)
-    gateways = []
-    for gateway, devices in itertools.groupby(ds, get_gateway):
-        gw_dict = util.deep_asdict(gateway)
-        dev_dics = map(util.deep_asdict, devices)
-        gw_dict['devices'] = dev_dics
-        gateways.append(gw_dict)
+def _validate_gateway_config(config):
+    for gateway in config:
+        required_keys = set('host port label devices'.split())
+        actual_keys = set(gateway.keys())
+        if not required_keys <= actual_keys:
+            raise ValidationException("Gateway data requires keys: %r" % (
+                                            required_keys - actual_keys))
+        for device in gateway['devices']:
+            required_keys = set('unit label type'.split())
+            actual_keys = set(device.keys())
+            if not required_keys <= actual_keys:
+                raise ValidationException(
+                       "Device data requires keys: %r" % (
+                            required_keys - actual_keys))
 
+def _merge_config_with_defaults(config):
+    config = config[:]
+    default_device_configs = devices.ALL
+    for gateway in config:
+        for device in gateway['devices']:
+            if device['type'] not in default_device_configs:
+                raise ValidationException(
+                        "Unknown device type: %s" % device['type'])
+
+            table_defaults = dict(
+                (t['id'], t) for t in util.deep_asdict(
+                    default_device_configs[device['type']]))
+
+            table_overrides = dict(
+                (t['id'], t) for t in device.get('tables', []))
+
+            _merge_tables(table_defaults, table_overrides)
+            device['tables'] = table_defaults.values()
+
+    gateways = _unmarshall_gateways(config)
     return gateways
 
-def _unmarshall_device_list(gateways):
-    '''Unpick devices from list of gateways'''
-    try:
-        devices = []
-        for gw_dict in gateways:
-            gateway = domain.Gateway(
-                    host=gw_dict['host'],
-                    port=gw_dict['port'],
-                    label=None)
-            for dev_dict in gw_dict['devices']:
-                d = domain.Device(
-                        gateway=gateway,
-                        unit=dev_dict['unit'],
-                        label=None,
-                        tables=[])
-                devices.append(d)
-        return devices
-    except KeyError, e:
-        raise ValidationException, str(e)
-    except TypeError, e:
-        raise ValidationException, str(e)
+def _merge_tables(defaults, overrides):
+    '''Merges two dictionaries representing Tables.
+
+    Only certain fields are overridable, and the registers need to be
+    overridden carefully.
+
+    Updates the default table in-place with the overridden values.
+    '''
+
+    _merge_by_field(defaults, overrides, overridable_fields=['label'])
+    for id, t in defaults.items():
+        if id in overrides:
+            if 'registers' in overrides[id]:
+                default_registers = dict(
+                        (r['address'], r) for r in t['registers'])
+
+                overrides_registers = dict(
+                        (r['address'], r) for r in overrides[id]['registers'])
+
+                if not set(overrides_registers.keys()) <= set(default_registers.keys()):
+                    non_permissable_addresses = (
+                        set(overrides_registers.keys()) - 
+                        set(default_registers.keys()))
+                    raise ValidationException(
+                        "Non permissable keys in table %d: %r" % (
+                            id, non_permissable_addresses))
+
+                _merge_by_field(default_registers,
+                                overrides_registers,
+                                overridable_fields=['label', 'range'])
+                t['registers'] = default_registers.values()
+
+def _merge_by_field(defaults, overrides, overridable_fields):
+    for id, r in defaults.items():
+        if id in overrides:
+            for field in overridable_fields:
+                if field in overrides[id] and \
+                        overrides[id][field] is not None:
+                    r[field] = overrides[id][field]
+

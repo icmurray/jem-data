@@ -8,8 +8,10 @@ import jem_data.core.table_reader as table_reader
 def test_read_small_table():
     in_q = mock.Mock()
     in_q.get.return_value = messages.ReadTableMsg(
-            device = domain.Device(mock.Mock(), 0xFF, None, {}),
-            table_id = 1)
+            table_addr = domain.TableAddr(
+                device_addr = domain.DeviceAddr(
+                    gateway_addr=mock.Mock(), unit=0xFF),
+                id = 1))
 
     out_q = mock.Mock()
     conn = mock.Mock()
@@ -22,8 +24,10 @@ def test_read_small_table():
 def test_read_large_table():
     in_q = mock.Mock()
     in_q.get.return_value = messages.ReadTableMsg(
-            device = domain.Device(mock.Mock(), 0xFF, None, {}),
-            table_id = 6)
+            table_addr = domain.TableAddr(
+                device_addr = domain.DeviceAddr(
+                    gateway_addr=mock.Mock(), unit=0xFF),
+                id = 6))
 
     out_q = mock.Mock()
     conn = mock.Mock()

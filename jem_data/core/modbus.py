@@ -1,5 +1,4 @@
 import logging
-import struct
 
 from twisted.internet import defer
 

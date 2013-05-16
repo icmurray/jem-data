@@ -34,4 +34,18 @@ def mongo_writer(q, collection_names, mongo_config):
             _log.error(e)
 
 def _insert_into_collection(msgs, mongo_collection):
-    mongo_collection.insert([util.deep_asdict(msg) for msg in msgs])
+    '''Write a bunch of messages to the given collection.
+
+    Massages the data into the form expected to be stored.  Ie, if the domain
+    model changes, then this step keeps backward-compatibility.
+    '''
+    ds = [util.deep_asdict(msg) for msg in msgs]
+
+    # Rename a few fields, and promote some data up a level.
+    for d in ds:
+        d['device'] = d['table_addr']['device_addr']
+        d['device']['gateway'] = d['device']['gateway_addr']
+        del d['device']['gateway_addr']
+        d['table_id'] = d['table_addr']['id']
+        del d['table_addr']
+    mongo_collection.insert(ds)

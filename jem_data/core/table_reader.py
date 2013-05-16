@@ -49,16 +49,15 @@ def _run(in_q, out_q, client):
 def _read_table(in_q, out_q, conn):
     msg = in_q.get()
 
-    for registers in _table_requests(msg.table_id):
+    for registers in _table_requests(msg.table_addr.id):
         start_time = time.time()
         response = modbus.read_registers(conn,
                                          registers=registers,
-                                         unit=msg.device.unit)
+                                         unit=msg.table_addr.device_addr.unit)
         end_time = time.time()
 
         result = messages.ResponseMsg(
-                device = msg.device,
-                table_id = msg.table_id,
+                table_addr = msg.table_addr,
                 values = _read_values_from_response(response, registers),
                 timing_info = domain.TimingInfo(start_time, end_time),
                 error = None,

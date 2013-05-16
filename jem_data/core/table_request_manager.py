@@ -15,21 +15,16 @@ import jem_data.core.messages as messages
 
 class TableRequestManager(multiprocessing.Process):
 
-    def __init__(self, queues, config, instructions):
+    def __init__(self, queues, instructions):
         super(TableRequestManager, self).__init__()
         self._queues = queues.copy()
-        self._config = config.copy()
+        self._config = {}
         self._instructions = instructions
         self._tasks = []
         self._sending_requests = False
 
     def run(self):
-        if not self._config:
-            raise ValueError("Empty configuration!")
 
-        now = time.time()
-        for table in self._config:
-            self._enqueue_push_table_request_task(table, now=now)
         self._enqueue_read_instructions_task()
 
         while True:
@@ -42,19 +37,13 @@ class TableRequestManager(multiprocessing.Process):
         '''Resets the current config to only request the given tables.
         '''
         tables = []
-        for gateway in recording.configured_gateways:
-            for device in gateway.configured_devices:
-                for table_id in device.table_ids:
-                    tables.append((
-                        domain.Device(
-                            unit=device.unit,
-                            gateway=domain.Gateway(
-                                host=gateway.host,
-                                port=gateway.port,
-                                label=None),
-                            label=None,
-                            tables=[]),
-                        table_id))
+        for gateway in recording.gateways:
+            gateway_addr = domain.GatewayAddr(gateway.host, gateway.port)
+            for device in gateway.devices:
+                device_addr = domain.DeviceAddr(gateway_addr, device.unit)
+                for table in device.tables:
+                    tables.append(domain.TableAddr(device_addr, table.id))
+
         self._instructions.put(_ResetRequests(tables=tables))
 
     def stop_requests(self):
@@ -72,14 +61,13 @@ class TableRequestManager(multiprocessing.Process):
             raise ValueError("Unknown Task Type: %s" % task)
 
     def _run_push_table_request_task(self, task):
-        device, table_id = task.device, task.table_id
+        table = task.table
         if self._sending_requests:
-            q = self._queues[device.gateway]
-            req = messages.ReadTableMsg(
-                    device = device,
-                    table_id = table_id)
+            print "Making request to %r" % (table,)
+            q = self._queues[table.device_addr.gateway_addr]
+            req = messages.ReadTableMsg(table)
             q.put(req)
-        self._enqueue_push_table_request_task((device, table_id))
+        self._enqueue_push_table_request_task(table)
 
     def _run_read_instructions_task(self, task):
         try:
@@ -102,7 +90,10 @@ class TableRequestManager(multiprocessing.Process):
             raise ValueError, "Unknown Instruction Type: %s" % instruction
 
     def _run_reset_instruction(self, instruction):
-        gateways = set( device.gateway for (device, _) in instruction.tables )
+
+        gateways = set( t.device_addr.gateway_addr \
+                for t in instruction.tables )
+
         for gateway in gateways:
             if gateway not in self._queues:
                 raise Exception("Uh oh: no queue for gateway: %s" % (gateway,))
@@ -114,8 +105,8 @@ class TableRequestManager(multiprocessing.Process):
         self._sending_requests = True
 
     def _enqueue_push_table_request_task(self, table, now=None):
-        task = _PushTableRequestTask(*table)
         if table in self._config:
+            task = _PushTableRequestTask(table)
             delay = self._config[table]
             self._enqueue_task(task, delay, now)
 
@@ -132,7 +123,7 @@ class _ReadInstructionsTask(object):
 
 _PushTableRequestTask = collections.namedtuple(
         '_PushTableRequestTask',
-        'device table_id')
+        'table')
 
 _ResetRequests = collections.namedtuple(
         '_ResetRequests',
@@ -144,24 +135,23 @@ class _StopRequests(object):
 class _ResumeRequests(object):
     __slots__ = ()
 
-def start_manager(queues, config):
+def start_manager(queues):
     """
     Create and start a new table request manager processes.
 
-    :param queues: is a mapping from `Gateway` to `Queue` objects.
-    :param config: is a mapping from `(Device,int)` to floats.
+    :param queues: is a mapping from `GatewayAddr` to `Queue` objects.
 
     The `queues` parameter holds the input queues for each `Gateway`.  These
     are used to write new requests to.
 
     The `config` parameter holds the target delay between requests for each
-    `Device` and table pairing.
+    `TableAddr`.
 
     The `instruction_queue` is a reference to a `Queue` that the newly created
     process will listen to command messages upon.
     """
     instruction_queue = multiprocessing.Queue()
-    p = TableRequestManager(queues, config, instruction_queue)
+    p = TableRequestManager(queues, instruction_queue)
     p.start()
     return p
 

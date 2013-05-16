@@ -3,7 +3,6 @@ import time
 import bson.objectid as objectid
 import pymongo
 
-import jem_data.core.domain as domain
 import jem_data.core.exceptions as jem_exceptions
 import json_marshalling
 import jem_data.util as util
@@ -14,31 +13,22 @@ class DataAccessLayer(object):
         connection = pymongo.MongoClient(config.host, config.port)
         self._db = connection[config.database]
 
-        self.devices = DeviceRepository(self._db)
+        self.gateways = GatewayRepository(self._db)
         self.recordings = RecordingsRepository(self._db)
 
-class DeviceRepository(object):
+class GatewayRepository(object):
 
     def __init__(self, db):
-        self._collection = db['devices']
+        self._collection = db['gateways']
 
     def delete_all(self):
         self._collection.remove()
 
-    def insert(self, devices):
-        self._collection.insert(map(util.deep_asdict, devices))
+    def insert(self, gateways):
+        self._collection.insert(map(util.deep_asdict, gateways))
 
     def all(self):
-        devices = []
-        for device in self._collection.find():
-            gateway = domain.Gateway(
-                host=device['gateway']['host'],
-                port=device['gateway']['port'])
-
-            devices.append(domain.Device(
-                unit=device['unit'],
-                gateway=gateway))
-        return devices
+        return [ json_marshalling.unmarshall_gateway(d) for d in self._collection.find() ]
 
 class RecordingsRepository(object):
 

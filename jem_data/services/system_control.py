@@ -1,14 +1,16 @@
 import multiprocessing
 import threading
+import time
 
 import pymongo
 
 import jem_data.core.domain as domain
+import jem_data.core.exceptions as jem_exceptions
 import jem_data.core.mongo_sink as mongo_sink
 import jem_data.core.table_reader as table_reader
 import jem_data.core.table_request_manager as table_request_manager
 import jem_data.dal as dal
-import jem_data.core.exceptions as jem_exceptions
+import jem_data.diris as diris
 
 ValidationException = jem_exceptions.ValidationException
 SystemConflict = jem_exceptions.SystemConflict
@@ -36,7 +38,7 @@ class SystemControlService(object):
         self._table_request_manager =  _setup_system()
         self._db.recordings.cleanup_recordings()
 
-    def start_recording(self, recording):
+    def start_recording(self, recording_config):
         '''Create a new recording, and start running it.
         '''
         with self._status_lock:
@@ -45,6 +47,48 @@ class SystemControlService(object):
                     "Cannot run more than one recording at a time. "
                     "Currently running: %s" % (
                         self._status['active_recordings']))
+
+            chosen_gateways = dict(
+                ((g.host, g.port), g) \
+                        for g in recording_config.gateway_recording_configs)
+            attached_gateways = self.attached_gateways()
+            if not (set(chosen_gateways.keys()) <=
+                    set((g.host, g.port) for g in attached_gateways)):
+                unknown = (set(chosen_gateways.keys()) -
+                           set((g.host, g.port) for g in attached_gateways))
+                raise ValidationException("Unknown gateways: %r" % unknown)
+
+            gateways = []
+            for gw in attached_gateways:
+                if (gw.host, gw.port) in chosen_gateways:
+
+                    chosen_gateway = chosen_gateways[(gw.host, gw.port)]
+                    chosen_devices = dict(
+                        (d.unit, d) \
+                            for d in chosen_gateway.device_recording_configs)
+
+                    devices = []
+                    for device in gw.devices:
+                        if device.unit in chosen_devices:
+                            chosen_device = chosen_devices[device.unit]
+
+                            chosen_tables = set(chosen_device.table_ids)
+                            active_tables = filter(
+                                lambda t: t.id in chosen_tables,
+                                device.tables)
+
+                            new_device = device._replace(tables=active_tables)
+                            devices.append(new_device)
+                    new_gw = gw._replace(devices=devices)
+                    gateways.append(new_gw)
+
+
+            recording = domain.Recording(
+                id=None,
+                status='running',
+                gateways=gateways,
+                start_time=time.time(),
+                end_time=None)
 
             new_recording = self._db.recordings.create(recording)
 
@@ -77,11 +121,11 @@ class SystemControlService(object):
             updated_recording = self._db.recordings.end_recording(recording_id)
             return updated_recording
 
-    def attached_devices(self):
-        '''Returns the list of `Device`s that the system is currently
+    def attached_gateways(self):
+        '''Returns the list of `Gateway`s that the system is currently
         configured with
         '''
-        return self._db.devices.all()
+        return self._db.gateways.all()
 
     def all_recordings(self):
         '''List of all recordings.  Sorted by start date.'''
@@ -99,24 +143,23 @@ class SystemControlService(object):
         with self._status_lock:
             return self._status.copy()
 
-    def update_devices(self, devices):
-        '''Updates the configured devices in bulk.
+    def update_gateways(self, gateways):
+        '''Updates the configured gateways in bulk.
 
         Return the updated list if successful.  Otherwise, if validation
         fails, a `ValueError` is raised.
         '''
-        for d in devices:
-            self._validate_device(d)
-        self._db.devices.delete_all()
-        self._db.devices.insert(devices)
-        return self.attached_devices()
+        for g in gateways:
+            self._validate_gateway(g)
+        self._db.gateways.delete_all()
+        self._db.gateways.insert(gateways)
+        return self.attached_gateways()
 
     def _validate_device(self, device):
         if not isinstance(device.unit, int):
             raise ValidationException, "Expected unit to be an integer"
         if not (0 < device.unit <= 31):
             raise ValidationException, "Unit lies outside valid range (1-31)"
-        self._validate_gateway(device.gateway)
 
     def _validate_gateway(self, gateway):
         if not isinstance(gateway.host, basestring):
@@ -125,29 +168,39 @@ class SystemControlService(object):
             raise ValidationException, "Expected port to be an integer"
         if gateway.port <= 0:
             raise ValidationException, "Expected port to be positive"
+        for device in gateway.devices:
+            self._validate_device(device)
 
 def _setup_system():
-    request_queue = multiprocessing.Queue()
+    ## Where results end up (fed to monog sink)
     results_queue = multiprocessing.Queue()
 
-    gateway_info = domain.Gateway(
+    local_gateway = domain.GatewayAddr(
             host="127.0.0.1",
             port=5020)
+    local_request_queue = multiprocessing.Queue()
 
-    table_reader.start_readers(gateway_info, request_queue, results_queue)
+    remote_gateway = domain.GatewayAddr(
+            host="192.168.0.101",
+            port=502)
+    remote_request_queue = multiprocessing.Queue()
+
+    table_reader.start_readers(
+            local_gateway,
+            local_request_queue,
+            results_queue)
+
+    table_reader.start_readers(
+            remote_gateway,
+            remote_request_queue,
+            results_queue)
 
     qs = {
-            gateway_info: request_queue
+            local_gateway: local_request_queue,
+            remote_gateway: remote_request_queue
     }
 
-    config = {}
-    for table in xrange(1,3):
-        for unit in [0x01]:
-        #for unit in [0x01, 0x02]:
-            device = domain.Device(gateway_info, unit)
-            config[(device, table)] = 0.5
-
-    manager = table_request_manager.start_manager(qs, config)
+    manager = table_request_manager.start_manager(qs)
 
     _setup_mongo_collections()
 
