@@ -172,17 +172,32 @@ class SystemControlService(object):
             self._validate_device(device)
 
 def _setup_system():
-    request_queue = multiprocessing.Queue()
+    ## Where results end up (fed to monog sink)
     results_queue = multiprocessing.Queue()
 
-    gateway_info = domain.GatewayAddr(
+    local_gateway = domain.GatewayAddr(
             host="127.0.0.1",
             port=5020)
+    local_request_queue = multiprocessing.Queue()
 
-    table_reader.start_readers(gateway_info, request_queue, results_queue)
+    remote_gateway = domain.GatewayAddr(
+            host="192.168.0.101",
+            port=502)
+    remote_request_queue = multiprocessing.Queue()
+
+    table_reader.start_readers(
+            local_gateway,
+            local_request_queue,
+            results_queue)
+
+    table_reader.start_readers(
+            remote_gateway,
+            remote_request_queue,
+            results_queue)
 
     qs = {
-            gateway_info: request_queue
+            local_gateway: local_request_queue,
+            remote_gateway: remote_request_queue
     }
 
     manager = table_request_manager.start_manager(qs)
