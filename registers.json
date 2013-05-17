@@ -1,0 +1,574 @@
+{
+  "diris.a40": {
+    "50816": {
+      "address_int": "50816", 
+      "address": "C680", 
+      "width": "1", 
+      "label": "Reserved for manufacturer", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50817": {
+      "address_int": "50817", 
+      "address": "C681", 
+      "width": "1", 
+      "label": "Reserved for manufacturer", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50562": {
+      "address_int": "50562", 
+      "address": "C582", 
+      "width": "2", 
+      "label": "power factor phase 1 -: leading and + : lagging", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50564": {
+      "address_int": "50564", 
+      "address": "C584", 
+      "width": "2", 
+      "label": "power factor phase 2 -: leading and + : lagging", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50518": {
+      "address_int": "50518", 
+      "address": "C556", 
+      "width": "2", 
+      "label": "phase to phase voltage U31", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50566": {
+      "address_int": "50566", 
+      "address": "C586", 
+      "width": "2", 
+      "label": "power factor phase 3 -: leading and + : lagging", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50568": {
+      "address_int": "50568", 
+      "address": "C588", 
+      "width": "2", 
+      "label": "Reserved for manufacturer", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50540": {
+      "address_int": "50540", 
+      "address": "C56C", 
+      "width": "2", 
+      "label": "Summation of Apparent Power +/-", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50570": {
+      "address_int": "50570", 
+      "address": "C58A", 
+      "width": "2", 
+      "label": "Reserved for manufacturer", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50572": {
+      "address_int": "50572", 
+      "address": "C58C", 
+      "width": "2", 
+      "label": "Reserved for manufacturer", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50520": {
+      "address_int": "50520", 
+      "address": "C558", 
+      "width": "2", 
+      "label": "phase to neutral voltage phase 1", 
+      "range": [
+        -50000, 
+        50000
+      ]
+    }, 
+    "50542": {
+      "address_int": "50542", 
+      "address": "C56E", 
+      "width": "2", 
+      "label": "Summation of Power Factor-: leading and +: lagging ", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50522": {
+      "address_int": "50522", 
+      "address": "C55A", 
+      "width": "2", 
+      "label": "phase to neutral voltage phase 2", 
+      "range": [
+        -50000, 
+        50000
+      ]
+    }, 
+    "50544": {
+      "address_int": "50544", 
+      "address": "C570", 
+      "width": "2", 
+      "label": "active power phase 1 +/-", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50725": {
+      "address_int": "50770", 
+      "address": "C625", 
+      "width": "2", 
+      "label": "active energy +", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50524": {
+      "address_int": "50524", 
+      "address": "C55C", 
+      "width": "2", 
+      "label": "phase to neutral voltage phase 3", 
+      "range": [
+        -50000, 
+        50000
+      ]
+    }, 
+    "50546": {
+      "address_int": "50546", 
+      "address": "C572", 
+      "width": "2", 
+      "label": "active power phase 2 +/-", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50560": {
+      "address_int": "50560", 
+      "address": "C580", 
+      "width": "2", 
+      "label": "apparent power phase 3", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50526": {
+      "address_int": "50526", 
+      "address": "C55E", 
+      "width": "2", 
+      "label": "frequency", 
+      "range": [
+        0, 
+        10000
+      ]
+    }, 
+    "50548": {
+      "address_int": "50548", 
+      "address": "C574", 
+      "width": "2", 
+      "label": "active power phase 3 +/-", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50528": {
+      "address_int": "50528", 
+      "address": "C560", 
+      "width": "2", 
+      "label": "phase current 1", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50550": {
+      "address_int": "50550", 
+      "address": "C576", 
+      "width": "2", 
+      "label": "reactive power phase 1 +/-", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50530": {
+      "address_int": "50530", 
+      "address": "C562", 
+      "width": "2", 
+      "label": "phase current 2", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50768": {
+      "address_int": "50768", 
+      "address": "C650", 
+      "width": "2", 
+      "label": "hour meter", 
+      "range": [
+        0, 
+        10000
+      ]
+    }, 
+    "50552": {
+      "address_int": "50552", 
+      "address": "C578", 
+      "width": "2", 
+      "label": "reactive power phase 2 +/-", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50514": {
+      "address_int": "50514", 
+      "address": "C552", 
+      "width": "2", 
+      "label": "phase to phase voltage U12", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50772": {
+      "address_int": "50772", 
+      "address": "C654", 
+      "width": "2", 
+      "label": "reactive energy +", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50774": {
+      "address_int": "50774", 
+      "address": "C656", 
+      "width": "2", 
+      "label": "apparent apparente", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50776": {
+      "address_int": "50776", 
+      "address": "C658", 
+      "width": "2", 
+      "label": "active energy -", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50532": {
+      "address_int": "50532", 
+      "address": "C564", 
+      "width": "2", 
+      "label": "phase current 3", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50778": {
+      "address_int": "50778", 
+      "address": "C65A", 
+      "width": "2", 
+      "label": "active energy +", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50780": {
+      "address_int": "50780", 
+      "address": "C65C", 
+      "width": "2", 
+      "label": "No. Compteurs d\\Impulsions", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50554": {
+      "address_int": "50554", 
+      "address": "C57A", 
+      "width": "2", 
+      "label": "reactive power phase 3 +/-", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50782": {
+      "address_int": "50782", 
+      "address": "C65E", 
+      "width": "2", 
+      "label": "pulse meter 1", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50784": {
+      "address_int": "50784", 
+      "address": "C660", 
+      "width": "2", 
+      "label": "pulse meter 2", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50512": {
+      "address_int": "50512", 
+      "address": "C550", 
+      "width": "2", 
+      "label": "hour meter", 
+      "range": [
+        0, 
+        10000
+      ]
+    }, 
+    "50786": {
+      "address_int": "50786", 
+      "address": "C662", 
+      "width": "2", 
+      "label": "pulse meter 3", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50788": {
+      "address_int": "50788", 
+      "address": "C664", 
+      "width": "2", 
+      "label": "pulse meter 4", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50534": {
+      "address_int": "50534", 
+      "address": "C566", 
+      "width": "2", 
+      "label": "neutral current", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50790": {
+      "address_int": "50790", 
+      "address": "C666", 
+      "width": "2", 
+      "label": "pulse meter 5", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50792": {
+      "address_int": "50792", 
+      "address": "C668", 
+      "width": "2", 
+      "label": "pulse meter 6", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50556": {
+      "address_int": "50556", 
+      "address": "C57C", 
+      "width": "2", 
+      "label": "apparent power phase 1", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50794": {
+      "address_int": "50794", 
+      "address": "C66A", 
+      "width": "2", 
+      "label": "Reserved for manufacturer", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50796": {
+      "address_int": "50796", 
+      "address": "C66C", 
+      "width": "2", 
+      "label": "Reserved for manufacturer", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50798": {
+      "address_int": "50798", 
+      "address": "C66E", 
+      "width": "2", 
+      "label": "Reserved for manufacturer", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50800": {
+      "address_int": "50800", 
+      "address": "C670", 
+      "width": "2", 
+      "label": "Reserved for manufacturer", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50536": {
+      "address_int": "50536", 
+      "address": "C568", 
+      "width": "2", 
+      "label": "Summation of Active Power +/-", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50802": {
+      "address_int": "50802", 
+      "address": "C672", 
+      "width": "2", 
+      "label": "S Predicted active power", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50804": {
+      "address_int": "50804", 
+      "address": "C674", 
+      "width": "2", 
+      "label": "S Predicted reactive power", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50558": {
+      "address_int": "50558", 
+      "address": "C57E", 
+      "width": "2", 
+      "label": "apparent power phase 2", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50806": {
+      "address_int": "50806", 
+      "address": "C676", 
+      "width": "2", 
+      "label": "S Predicted apparent power", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50808": {
+      "address_int": "50808", 
+      "address": "C678", 
+      "width": "2", 
+      "label": "Ea+ between 2 tops ", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50516": {
+      "address_int": "50516", 
+      "address": "C554", 
+      "width": "2", 
+      "label": "phase to phase voltage U23", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50810": {
+      "address_int": "50810", 
+      "address": "C67A", 
+      "width": "2", 
+      "label": "Ea- between 2 tops ", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50812": {
+      "address_int": "50812", 
+      "address": "C67C", 
+      "width": "2", 
+      "label": "Er+ between 2 tops", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50538": {
+      "address_int": "50538", 
+      "address": "C56A", 
+      "width": "2", 
+      "label": "Summation of reactive Power +/-", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }, 
+    "50814": {
+      "address_int": "50814", 
+      "address": "C67E", 
+      "width": "2", 
+      "label": "Er- between 2 tops", 
+      "range": [
+        -1000, 
+        1000
+      ]
+    }
+  }
+}
