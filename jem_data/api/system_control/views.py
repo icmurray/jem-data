@@ -165,7 +165,8 @@ def _merge_tables(defaults, overrides):
                 _merge_by_field(default_registers,
                                 overrides_registers,
                                 overridable_fields=['label', 'range'])
-                t['registers'] = default_registers.values()
+                t['registers'] = sorted(default_registers.values(),
+                                        key=lambda r: r['address'])
 
 def _merge_by_field(defaults, overrides, overridable_fields):
     for id, r in defaults.items():
