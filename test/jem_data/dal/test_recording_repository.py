@@ -46,7 +46,8 @@ def test_all():
                                {
                                    'address': 0xC550,
                                    'label': 'Current or something',
-                                   'range': (-100,100)
+                                   'range': (-100,100),
+                                   'unit_of_measurement': 'V'
                                },
                            ]
                           },

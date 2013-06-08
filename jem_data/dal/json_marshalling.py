@@ -33,7 +33,8 @@ def unmarshall_register(register_data):
     return domain.Register(
             address=register_data['address'],
             label=register_data['label'],
-            range=tuple(register_data['range']))
+            range=tuple(register_data['range']),
+            unit_of_measurement=register_data['unit_of_measurement'])
 
 def unmarshall_recording(recording_data):
     return domain.Recording(

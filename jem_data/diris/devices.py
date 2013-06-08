@@ -29,7 +29,10 @@ A40 = [
                                  .get('label',hex(addr))),
                 tuple((_REGISTER_CONFIG.get('diris.a40',{})
                                  .get(addr,{})
-                                 .get('range',[-1000,1000])))) \
+                                 .get('range',[-1000,1000]))),
+                (_REGISTER_CONFIG.get('diris.a40',{})
+                                 .get(addr,{})
+                                 .get('unit_of_measurement', None)))
                     for addr in sorted(registers.TABLES[i-1].keys()) ]
     ) for i in xrange(1, 7) ]
 

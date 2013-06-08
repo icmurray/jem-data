@@ -39,7 +39,7 @@ GatewayAddr = collections.namedtuple(
 
 Register = collections.namedtuple(
         'Register',
-        'address label range')
+        'address label range unit_of_measurement')
 
 Table = collections.namedtuple(
         'Table',
