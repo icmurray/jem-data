@@ -24,7 +24,9 @@ def mongo_writer(q, collection_names, mongo_config):
     while True:
         try:
             msg = q.get()
-            for collection_name in collection_names:
+            for collection_name_fmt in collection_names:
+                collection_name = collection_name_fmt.format(
+                        recording_id=msg.request_info['recording_id'])
                 _insert_into_collection([msg], db[collection_name])
         except pymongo.errors.AutoReconnect, e:
             _log.error("Connection to mongo lost.  Auto-reconnect will be attempted")

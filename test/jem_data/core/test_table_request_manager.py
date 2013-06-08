@@ -20,7 +20,8 @@ def test_start_recording():
         domain.TableAddr(expected_device, 3)
     ]
 
-    expected_instruction = trm._ResetRequests(tables=expected_tables)
+    expected_instruction = trm._ResetRequests(tables=expected_tables,
+                                              recording_id="abc")
     manager.start_recording(recording)
     instructions.put.assert_called_once_with(expected_instruction)
 

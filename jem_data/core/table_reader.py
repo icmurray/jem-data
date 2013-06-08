@@ -61,7 +61,7 @@ def _read_table(in_q, out_q, conn):
                 values = _read_values_from_response(response, registers),
                 timing_info = domain.TimingInfo(start_time, end_time),
                 error = None,
-                request_info = None)
+                request_info = {'recording_id': msg.recording_id})
 
         out_q.put(result)
 

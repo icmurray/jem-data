@@ -95,7 +95,7 @@ class SystemControlService(object):
             self._status['active_recordings'].append(new_recording.id)
             self._status['running'] = True
 
-            self._table_request_manager.start_recording(recording)
+            self._table_request_manager.start_recording(new_recording)
             return new_recording
 
     def resume(self):
@@ -206,7 +206,7 @@ def _setup_system():
 
     mongo_writer = multiprocessing.Process(
             target=mongo_sink.mongo_writer,
-            args=(results_queue, ['archive', 'realtime'], mongo_config))
+            args=(results_queue, ['archive-{recording_id}', 'realtime'], mongo_config))
 
     mongo_writer.start()
 

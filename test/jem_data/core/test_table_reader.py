@@ -11,7 +11,8 @@ def test_read_small_table():
             table_addr = domain.TableAddr(
                 device_addr = domain.DeviceAddr(
                     gateway_addr=mock.Mock(), unit=0xFF),
-                id = 1))
+                id = 1),
+            recording_id="unique-id")
 
     out_q = mock.Mock()
     conn = mock.Mock()
@@ -27,7 +28,8 @@ def test_read_large_table():
             table_addr = domain.TableAddr(
                 device_addr = domain.DeviceAddr(
                     gateway_addr=mock.Mock(), unit=0xFF),
-                id = 6))
+                id = 6),
+            recording_id="unique_id")
 
     out_q = mock.Mock()
     conn = mock.Mock()

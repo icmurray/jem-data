@@ -19,6 +19,7 @@ class TableRequestManager(multiprocessing.Process):
         super(TableRequestManager, self).__init__()
         self._queues = queues.copy()
         self._config = {}
+        self._recording_id = None
         self._instructions = instructions
         self._tasks = []
         self._sending_requests = False
@@ -44,7 +45,8 @@ class TableRequestManager(multiprocessing.Process):
                 for table in device.tables:
                     tables.append(domain.TableAddr(device_addr, table.id))
 
-        self._instructions.put(_ResetRequests(tables=tables))
+        self._instructions.put(_ResetRequests(tables=tables,
+                                              recording_id=recording.id))
 
     def stop_requests(self):
         self._instructions.put(_StopRequests())
@@ -65,7 +67,7 @@ class TableRequestManager(multiprocessing.Process):
         if self._sending_requests:
             print "Making request to %r" % (table,)
             q = self._queues[table.device_addr.gateway_addr]
-            req = messages.ReadTableMsg(table)
+            req = messages.ReadTableMsg(table, self._recording_id)
             q.put(req)
         self._enqueue_push_table_request_task(table)
 
@@ -99,6 +101,7 @@ class TableRequestManager(multiprocessing.Process):
                 raise Exception("Uh oh: no queue for gateway: %s" % (gateway,))
 
         self._config = dict( (t, 0.5) for t in instruction.tables )
+        self._recording_id = instruction.recording_id
         now = time.time()
         for table in self._config:
             self._enqueue_push_table_request_task(table, now=now)
@@ -127,7 +130,7 @@ _PushTableRequestTask = collections.namedtuple(
 
 _ResetRequests = collections.namedtuple(
         '_ResetRequests',
-        'tables')
+        'tables recording_id')
 
 class _StopRequests(object):
     __slots__ = ()
