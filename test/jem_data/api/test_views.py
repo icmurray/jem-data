@@ -180,7 +180,7 @@ def test_updating_list_of_attached_gateways_allows_overriding():
             lambda r: r['address'] != 0xC650,
             altered_table['registers'])[0]
     nose.assert_equal(unaltered_register['label'], hex(unaltered_register['address']))
-    nose.assert_equal(unaltered_register['range'], [0,100])
+    nose.assert_equal(unaltered_register['range'], [-1000,1000])
 
 def test_updating_devices_with_bad_data():
     app = api.app_factory(mock.Mock()).test_client()
