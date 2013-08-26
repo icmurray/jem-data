@@ -26,7 +26,7 @@
       "unit_of_measurement": "kVAh", 
       "width": "2", 
       "range": [
-        -1000, 
+        0, 
         1000
       ], 
       "address": "C656", 
@@ -37,7 +37,7 @@
       "unit_of_measurement": "V/100", 
       "width": "2", 
       "range": [
-        -50000, 
+        0, 
         50000
       ], 
       "address": "C55C", 
@@ -48,8 +48,8 @@
       "unit_of_measurement": "kVA/100", 
       "width": "2", 
       "range": [
-        -1000, 
-        1000
+        0, 
+        100
       ], 
       "address": "C580", 
       "address_int": "50560", 
@@ -59,8 +59,8 @@
       "unit_of_measurement": "kvar/100", 
       "width": "2", 
       "range": [
-        -1000, 
-        1000
+        0, 
+        100
       ], 
       "address": "C578", 
       "address_int": "50552", 
@@ -81,8 +81,8 @@
       "unit_of_measurement": "kvar/100", 
       "width": "2", 
       "range": [
-        -1000, 
-        1000
+        0, 
+        100
       ], 
       "address": "C576", 
       "address_int": "50550", 
@@ -92,7 +92,7 @@
       "unit_of_measurement": "mA", 
       "width": "2", 
       "range": [
-        -1000, 
+        0, 
         1000
       ], 
       "address": "C562", 
@@ -103,8 +103,8 @@
       "unit_of_measurement": "kvar/100", 
       "width": "2", 
       "range": [
-        -1000, 
-        1000
+        0, 
+        100
       ], 
       "address": "C57A", 
       "address_int": "50554", 
@@ -136,8 +136,8 @@
       "unit_of_measurement": "kVA/100", 
       "width": "2", 
       "range": [
-        -1000, 
-        1000
+        0, 
+        100
       ], 
       "address": "C57E", 
       "address_int": "50558", 
@@ -148,7 +148,7 @@
       "width": "2", 
       "range": [
         -1000, 
-        1000
+        null
       ], 
       "address": "C56A", 
       "address_int": "50538", 
@@ -180,7 +180,7 @@
       "unit_of_measurement": "mA", 
       "width": "2", 
       "range": [
-        -1000, 
+        0, 
         1000
       ], 
       "address": "C560", 
@@ -202,8 +202,8 @@
       "unit_of_measurement": "V/100", 
       "width": "2", 
       "range": [
-        -1000, 
-        1000
+        0, 
+        50000
       ], 
       "address": "C556", 
       "address_int": "50518", 
@@ -213,7 +213,7 @@
       "unit_of_measurement": "kWh", 
       "width": "2", 
       "range": [
-        -1000, 
+        0, 
         1000
       ], 
       "address": "C658", 
@@ -279,7 +279,7 @@
       "unit_of_measurement": "mA", 
       "width": "2", 
       "range": [
-        -1000, 
+        0, 
         1000
       ], 
       "address": "C566", 
@@ -290,7 +290,7 @@
       "unit_of_measurement": "V/100", 
       "width": "2", 
       "range": [
-        -50000, 
+        0, 
         50000
       ], 
       "address": "C558", 
@@ -312,7 +312,7 @@
       "unit_of_measurement": "kWh", 
       "width": "2", 
       "range": [
-        -1000, 
+        0, 
         1000
       ], 
       "address": "C65A", 
@@ -335,7 +335,7 @@
       "width": "2", 
       "range": [
         -1000, 
-        1000
+        null
       ], 
       "address": "C568", 
       "address_int": "50536", 
@@ -356,8 +356,8 @@
       "unit_of_measurement": "kW/100", 
       "width": "2", 
       "range": [
-        -1000, 
-        1000
+        0, 
+        100
       ], 
       "address": "C574", 
       "address_int": "50548", 
@@ -367,7 +367,7 @@
       "unit_of_measurement": "V/100", 
       "width": "2", 
       "range": [
-        -50000, 
+        0, 
         50000
       ], 
       "address": "C55A", 
@@ -378,8 +378,8 @@
       "unit_of_measurement": "kVA/100", 
       "width": "2", 
       "range": [
-        -1000, 
-        1000
+        0, 
+        100
       ], 
       "address": "C57C", 
       "address_int": "50556", 
@@ -389,8 +389,8 @@
       "unit_of_measurement": "kW/100", 
       "width": "2", 
       "range": [
-        -1000, 
-        1000
+        0, 
+        100
       ], 
       "address": "C570", 
       "address_int": "50544", 
@@ -400,8 +400,8 @@
       "unit_of_measurement": "V/100", 
       "width": "2", 
       "range": [
-        -1000, 
-        1000
+        0, 
+        50000
       ], 
       "address": "C552", 
       "address_int": "50514", 
@@ -411,8 +411,8 @@
       "unit_of_measurement": "V/100", 
       "width": "2", 
       "range": [
-        -1000, 
-        1000
+        0, 
+        50000
       ], 
       "address": "C554", 
       "address_int": "50516", 
@@ -423,7 +423,7 @@
       "width": "2", 
       "range": [
         -1000, 
-        1000
+        null
       ], 
       "address": "C56C", 
       "address_int": "50540", 
@@ -440,21 +440,22 @@
       "address_int": "50542", 
       "label": "Summation of Power Factor-: leading and +: lagging "
     }, 
-    "50725": {
+    "50770": {
+      "unit_of_measurement": "kWh", 
       "address_int": "50770", 
       "range": [
-        -1000, 
+        0, 
         1000
       ], 
       "label": "active energy +", 
       "width": "2", 
-      "address": "C625"
+      "address": "C652"
     }, 
     "50532": {
       "unit_of_measurement": "mA", 
       "width": "2", 
       "range": [
-        -1000, 
+        0, 
         1000
       ], 
       "address": "C564", 
@@ -465,8 +466,8 @@
       "unit_of_measurement": "kW/100", 
       "width": "2", 
       "range": [
-        -1000, 
-        1000
+        0, 
+        100
       ], 
       "address": "C572", 
       "address_int": "50546", 
@@ -476,7 +477,7 @@
       "unit_of_measurement": "kvarh", 
       "width": "2", 
       "range": [
-        -1000, 
+        0, 
         1000
       ], 
       "address": "C654", 
@@ -509,8 +510,8 @@
       "unit_of_measurement": "Hz/100", 
       "width": "2", 
       "range": [
-        0, 
-        10000
+        4000, 
+        7000
       ], 
       "address": "C55E", 
       "address_int": "50526", 
