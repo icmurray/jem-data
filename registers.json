@@ -59,7 +59,7 @@
       "unit_of_measurement": "kvar/100", 
       "width": "2", 
       "range": [
-        0, 
+        -100, 
         100
       ], 
       "address": "C578", 
@@ -81,7 +81,7 @@
       "unit_of_measurement": "kvar/100", 
       "width": "2", 
       "range": [
-        0, 
+        -100, 
         100
       ], 
       "address": "C576", 
@@ -103,7 +103,7 @@
       "unit_of_measurement": "kvar/100", 
       "width": "2", 
       "range": [
-        0, 
+        -100, 
         100
       ], 
       "address": "C57A", 
@@ -356,7 +356,7 @@
       "unit_of_measurement": "kW/100", 
       "width": "2", 
       "range": [
-        0, 
+        -100, 
         100
       ], 
       "address": "C574", 
@@ -389,7 +389,7 @@
       "unit_of_measurement": "kW/100", 
       "width": "2", 
       "range": [
-        0, 
+        -100, 
         100
       ], 
       "address": "C570", 
@@ -466,7 +466,7 @@
       "unit_of_measurement": "kW/100", 
       "width": "2", 
       "range": [
-        0, 
+        -100, 
         100
       ], 
       "address": "C572", 
