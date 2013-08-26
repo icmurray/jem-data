@@ -1,0 +1,41 @@
+[
+  {
+    "host": "192.168.0.101", 
+    "port": 502, 
+    "devices": [
+      {
+        "type": "diris.a40", 
+        "unit": 5, 
+        "label": "Primary"
+      }, 
+      {
+        "type": "diris.a40", 
+        "unit": 6, 
+        "label": "Secondary"
+      } 
+    ], 
+    "label": "Test Rig Box"
+  },
+  {
+    "host": "127.0.0.1", 
+    "port": 5020, 
+    "devices": [
+      {
+        "type": "diris.a40", 
+        "unit": 1, 
+        "label": "Unit One"
+      }, 
+      {
+        "type": "diris.a40", 
+        "unit": 2, 
+        "label": "Unit Two"
+      }, 
+      {
+        "type": "diris.a40", 
+        "unit": 3, 
+        "label": null
+      }
+    ], 
+    "label": "Simulated Gateway"
+  }
+]
