@@ -22,15 +22,15 @@
       "address_int": "50564", 
       "label": "power factor phase 2 -: leading and + : lagging"
     }, 
-    "50774": {
+    "50784": {
       "unit_of_measurement": "kVAh", 
       "width": "2", 
       "range": [
         0, 
         1000
       ], 
-      "address": "C656", 
-      "address_int": "50774", 
+      "address": "C660", 
+      "address_int": "50784", 
       "label": "apparent apparente"
     }, 
     "50524": {
@@ -66,15 +66,15 @@
       "address_int": "50552", 
       "label": "reactive power phase 2 +/-"
     }, 
-    "50790": {
+    "50800": {
       "unit_of_measurement": "", 
       "width": "2", 
       "range": [
         -1000, 
         1000
       ], 
-      "address": "C666", 
-      "address_int": "50790", 
+      "address": "C670", 
+      "address_int": "50800", 
       "label": "pulse meter 5"
     }, 
     "50550": {
@@ -110,15 +110,15 @@
       "address_int": "50554", 
       "label": "reactive power phase 3 +/-"
     }, 
-    "50798": {
+    "50808": {
       "unit_of_measurement": "", 
       "width": "2", 
       "range": [
         -1000, 
         1000
       ], 
-      "address": "C66E", 
-      "address_int": "50798", 
+      "address": "C678", 
+      "address_int": "50808", 
       "label": "Reserved for manufacturer"
     }, 
     "50570": {
@@ -154,26 +154,26 @@
       "address_int": "50538", 
       "label": "Summation of reactive Power +/-"
     }, 
-    "50808": {
+    "50818": {
       "unit_of_measurement": "0,1 Ws", 
       "width": "2", 
       "range": [
         -1000, 
         1000
       ], 
-      "address": "C678", 
-      "address_int": "50808", 
+      "address": "C682", 
+      "address_int": "50818", 
       "label": "Ea+ between 2 tops "
     }, 
-    "50792": {
+    "50802": {
       "unit_of_measurement": "", 
       "width": "2", 
       "range": [
         -1000, 
         1000
       ], 
-      "address": "C668", 
-      "address_int": "50792", 
+      "address": "C672", 
+      "address_int": "50802", 
       "label": "pulse meter 6"
     }, 
     "50528": {
@@ -187,15 +187,15 @@
       "address_int": "50528", 
       "label": "phase current 1"
     }, 
-    "50794": {
+    "50804": {
       "unit_of_measurement": "", 
       "width": "2", 
       "range": [
         -1000, 
         1000
       ], 
-      "address": "C66A", 
-      "address_int": "50794", 
+      "address": "C674", 
+      "address_int": "50804", 
       "label": "Reserved for manufacturer"
     }, 
     "50518": {
@@ -209,26 +209,26 @@
       "address_int": "50518", 
       "label": "phase to phase voltage U31"
     }, 
-    "50776": {
+    "50786": {
       "unit_of_measurement": "kWh", 
       "width": "2", 
       "range": [
         0, 
         1000
       ], 
-      "address": "C658", 
-      "address_int": "50776", 
+      "address": "C662", 
+      "address_int": "50786", 
       "label": "active energy -"
     }, 
-    "50802": {
+    "50812": {
       "unit_of_measurement": "kW/100", 
       "width": "2", 
       "range": [
         -1000, 
         1000
       ], 
-      "address": "C672", 
-      "address_int": "50802", 
+      "address": "C67C", 
+      "address_int": "50812", 
       "label": "S Predicted active power"
     }, 
     "50568": {
@@ -253,26 +253,26 @@
       "address_int": "50512", 
       "label": "hour meter"
     }, 
-    "50806": {
+    "50816": {
       "unit_of_measurement": "kVA/100", 
       "width": "2", 
       "range": [
         -1000, 
         1000
       ], 
-      "address": "C676", 
-      "address_int": "50806", 
+      "address": "C680", 
+      "address_int": "50816", 
       "label": "S Predicted apparent power"
     }, 
-    "50768": {
+    "50778": {
       "unit_of_measurement": "1/100 h", 
       "width": "2", 
       "range": [
         0, 
         10000
       ], 
-      "address": "C650", 
-      "address_int": "50768", 
+      "address": "C65A", 
+      "address_int": "50778", 
       "label": "hour meter"
     }, 
     "50534": {
@@ -297,37 +297,37 @@
       "address_int": "50520", 
       "label": "phase to neutral voltage phase 1"
     }, 
-    "50804": {
+    "50814": {
       "unit_of_measurement": "kvar/100", 
       "width": "2", 
       "range": [
         -1000, 
         1000
       ], 
-      "address": "C674", 
-      "address_int": "50804", 
+      "address": "C67E", 
+      "address_int": "50814", 
       "label": "S Predicted reactive power"
     }, 
-    "50778": {
+    "50788": {
       "unit_of_measurement": "kWh", 
       "width": "2", 
       "range": [
         0, 
         1000
       ], 
-      "address": "C65A", 
-      "address_int": "50778", 
+      "address": "C664", 
+      "address_int": "50788", 
       "label": "active energy +"
     }, 
-    "50780": {
+    "50790": {
       "unit_of_measurement": "", 
       "width": "2", 
       "range": [
         -1000, 
         1000
       ], 
-      "address": "C65C", 
-      "address_int": "50780", 
+      "address": "C666", 
+      "address_int": "50790", 
       "label": "No. Compteurs d\\Impulsions"
     }, 
     "50536": {
@@ -341,15 +341,15 @@
       "address_int": "50536", 
       "label": "Summation of Active Power +/-"
     }, 
-    "50800": {
+    "50810": {
       "unit_of_measurement": "", 
       "width": "2", 
       "range": [
         -1000, 
         1000
       ], 
-      "address": "C670", 
-      "address_int": "50800", 
+      "address": "C67A", 
+      "address_int": "50810", 
       "label": "Reserved for manufacturer"
     }, 
     "50548": {
@@ -440,16 +440,16 @@
       "address_int": "50542", 
       "label": "Summation of Power Factor-: leading and +: lagging "
     }, 
-    "50770": {
+    "50780": {
       "unit_of_measurement": "kWh", 
-      "address_int": "50770", 
+      "address_int": "50780", 
       "range": [
         0, 
         1000
       ], 
       "label": "active energy +", 
       "width": "2", 
-      "address": "C652"
+      "address": "C65C"
     }, 
     "50532": {
       "unit_of_measurement": "mA", 
@@ -473,26 +473,26 @@
       "address_int": "50546", 
       "label": "active power phase 2 +/-"
     }, 
-    "50772": {
+    "50782": {
       "unit_of_measurement": "kvarh", 
       "width": "2", 
       "range": [
         0, 
         1000
       ], 
-      "address": "C654", 
-      "address_int": "50772", 
+      "address": "C65E", 
+      "address_int": "50782", 
       "label": "reactive energy +"
     }, 
-    "50796": {
+    "50806": {
       "unit_of_measurement": "", 
       "width": "2", 
       "range": [
         -1000, 
         1000
       ], 
-      "address": "C66C", 
-      "address_int": "50796", 
+      "address": "C676", 
+      "address_int": "50806", 
       "label": "Reserved for manufacturer"
     }, 
     "50562": {
@@ -517,92 +517,147 @@
       "address_int": "50526", 
       "label": "frequency"
     }, 
-    "50812": {
+    "50822": {
       "unit_of_measurement": "0,1 vars", 
       "width": "2", 
       "range": [
         -1000, 
         1000
       ], 
-      "address": "C67C", 
-      "address_int": "50812", 
+      "address": "C686", 
+      "address_int": "50822", 
       "label": "Er+ between 2 tops"
     }, 
-    "50786": {
+    "50796": {
       "unit_of_measurement": "", 
       "width": "2", 
       "range": [
         -1000, 
         1000
       ], 
-      "address": "C662", 
-      "address_int": "50786", 
+      "address": "C66C", 
+      "address_int": "50796", 
       "label": "pulse meter 3"
     }, 
-    "50784": {
+    "50794": {
       "unit_of_measurement": "", 
       "width": "2", 
       "range": [
         -1000, 
         1000
       ], 
-      "address": "C660", 
-      "address_int": "50784", 
+      "address": "C66A", 
+      "address_int": "50794", 
       "label": "pulse meter 2"
     }, 
-    "50782": {
+    "50792": {
       "unit_of_measurement": "", 
       "width": "2", 
       "range": [
         -1000, 
         1000
       ], 
-      "address": "C65E", 
-      "address_int": "50782", 
+      "address": "C668", 
+      "address_int": "50792", 
       "label": "pulse meter 1"
     }, 
-    "50788": {
+    "50798": {
       "unit_of_measurement": "", 
       "width": "2", 
       "range": [
         -1000, 
         1000
       ], 
-      "address": "C664", 
-      "address_int": "50788", 
+      "address": "C66E", 
+      "address_int": "50798", 
       "label": "pulse meter 4"
     }, 
-    "50817": {
+    "50827": {
       "unit_of_measurement": "", 
       "width": "1", 
       "range": [
         -1000, 
         1000
       ], 
-      "address": "C681", 
-      "address_int": "50817", 
+      "address": "C68B", 
+      "address_int": "50827", 
       "label": "Reserved for manufacturer"
     }, 
-    "50816": {
+    "50826": {
       "unit_of_measurement": "", 
       "width": "1", 
       "range": [
         -1000, 
         1000
       ], 
-      "address": "C680", 
-      "address_int": "50816", 
+      "address": "C68A", 
+      "address_int": "50826", 
       "label": "Reserved for manufacturer"
     }, 
-    "50814": {
+    "50770": {
+      "unit_of_measurement": "", 
+      "width": "2", 
+      "range": [
+        -1000, 
+        1000
+      ], 
+      "address": "C652", 
+      "address_int": "50770", 
+      "label": "Reserved for manufacturer"
+    }, 
+    "50772": {
+      "unit_of_measurement": "", 
+      "width": "2", 
+      "range": [
+        -1000, 
+        1000
+      ], 
+      "address": "C654", 
+      "address_int": "50772", 
+      "label": "Reserved for manufacturer"
+    }, 
+    "50774": {
+      "unit_of_measurement": "", 
+      "width": "2", 
+      "range": [
+        -1000, 
+        1000
+      ], 
+      "address": "C656", 
+      "address_int": "50774", 
+      "label": "Reserved for manufacturer"
+    }, 
+    "50776": {
+      "unit_of_measurement": "", 
+      "width": "2", 
+      "range": [
+        -1000, 
+        1000
+      ], 
+      "address": "C658", 
+      "address_int": "50776", 
+      "label": "Reserved for manufacturer"
+    }, 
+    "50778": {
+      "unit_of_measurement": "", 
+      "width": "2", 
+      "range": [
+        -1000, 
+        1000
+      ], 
+      "address": "C65A", 
+      "address_int": "50778", 
+      "label": "Reserved for manufacturer"
+    }, 
+    "50824": {
       "unit_of_measurement": "0,1 vars", 
       "width": "2", 
       "range": [
         -1000, 
         1000
       ], 
-      "address": "C67E", 
-      "address_int": "50814", 
+      "address": "C688", 
+      "address_int": "50824", 
       "label": "Er- between 2 tops"
     }, 
     "50572": {
@@ -616,15 +671,15 @@
       "address_int": "50572", 
       "label": "Reserved for manufacturer"
     }, 
-    "50810": {
+    "50820": {
       "unit_of_measurement": "0,1 Ws", 
       "width": "2", 
       "range": [
         -1000, 
         1000
       ], 
-      "address": "C67A", 
-      "address_int": "50810", 
+      "address": "C684", 
+      "address_int": "50820", 
       "label": "Ea- between 2 tops "
     }
   }
