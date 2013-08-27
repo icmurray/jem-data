@@ -22,11 +22,29 @@ def start_readers(gateway, in_q, out_q, number_processes=4):
     Create and start a pool of `Process`s connecting to the `gateway` device.
     """
 
+    even_q = multiprocessing.Queue()
+    odd_q = multiprocessing.Queue()
+    in_qs = [even_q, odd_q]
+
+    master = multiprocessing.Process(
+            target = _switch,
+            args = (in_q, even_q, odd_q))
+    master.start()
+
     for i in xrange(number_processes):
         p = multiprocessing.Process(
                 target = _run,
-                args = (in_q, out_q, gateway.host, gateway.port))
+                #args = (in_q, out_q, gateway.host, gateway.port))
+                args = (in_qs[i % 2], out_q, gateway.host, gateway.port))
         p.start()
+
+def _switch(in_q, even_q, odd_q):
+    while True:
+        msg = in_q.get()
+        if msg.table_addr.device_addr.unit % 2 == 0:
+            even_q.put(msg)
+        else:
+            odd_q.put(msg)
 
 def _run(in_q, out_q, host, port):
     """
