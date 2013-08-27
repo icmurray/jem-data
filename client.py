@@ -26,6 +26,7 @@ from pymodbus.client.sync import ModbusTcpClient as ModbusClient
 
 from jem_data.core import modbus
 import jem_data.diris.registers as diris_registers
+import jem_data.core.exceptions as exceptions
 
 logging.basicConfig()
 log = logging.getLogger()
@@ -96,9 +97,12 @@ def main(host, port, delay, unit, table_num):
     while True:
     
         start = time.time()
-        response = modbus.read_registers(client,
-                                         registers=registers,
-                                         unit=unit)
+        try:
+            response = modbus.read_registers(client,
+                                             registers=registers,
+                                             unit=unit)
+        except exceptions.ModbusExceptionResponse, e:
+            response=None
     
         response_time = time.time() - start
 
@@ -117,6 +121,8 @@ def main(host, port, delay, unit, table_num):
 
         print "Response Values:"
         for addr in sorted(registers.keys()):
+            if response is None:
+                break
             print (u"{label:>" + str(label_width) + u"s}: {value:f}").format(
                     label=register_labels[addr],
                     value=response.read_register(addr))
