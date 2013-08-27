@@ -23,31 +23,31 @@ def start_readers(gateway, in_q, out_q, number_processes=4):
     """
 
     for i in xrange(number_processes):
-        client = ModbusClient(gateway.host, port=gateway.port)
         p = multiprocessing.Process(
                 target = _run,
-                args = (in_q, out_q, client))
+                args = (in_q, out_q, gateway.host, gateway.port))
         p.start()
 
-def _run(in_q, out_q, client):
+def _run(in_q, out_q, host, port):
     """
     Endlessly reads `ReadTableMsg` objects from a given `Queue`, performs the
     requests necessary to read the whole table, and writes the results back
     out to another (given) `Queue`.
     """
-
+    client = ModbusClient(host, port)
     with contextlib.closing(client) as conn:
 
         while True:
             try:
-                _read_table(in_q, out_q, conn)
+                msg = in_q.get()
+                _read_table(msg, out_q, conn)
             except jem_exceptions.JemException, e:
-                print e
+                print "ERROR: %s : %s" % (msg, e)
             except pymodbus.exceptions.ConnectionException:
                 pass
 
-def _read_table(in_q, out_q, conn):
-    msg = in_q.get()
+def _read_table(msg, out_q, conn):
+    #msg = in_q.get()
 
     for registers in _table_requests(msg.table_addr.id):
         start_time = time.time()
@@ -63,6 +63,7 @@ def _read_table(in_q, out_q, conn):
                 error = None,
                 request_info = {'recording_id': msg.recording_id})
 
+        print "SUCCESS: %s : %s" % (msg, result)
         out_q.put(result)
 
 def _table_requests(table_id):
