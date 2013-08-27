@@ -188,12 +188,14 @@ def _setup_system():
     table_reader.start_readers(
             local_gateway,
             local_request_queue,
-            results_queue)
+            results_queue,
+            number_processes=2)
 
     table_reader.start_readers(
             remote_gateway,
             remote_request_queue,
-            results_queue)
+            results_queue,
+            number_processes=4)
 
     qs = {
             local_gateway: local_request_queue,
