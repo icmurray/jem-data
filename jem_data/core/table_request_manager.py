@@ -69,7 +69,7 @@ class TableRequestManager(multiprocessing.Process):
             q = self._queues[table.device_addr.gateway_addr]
             req = messages.ReadTableMsg(table, self._recording_id)
             q.put(req)
-        self._enqueue_push_table_request_task(table)
+            self._enqueue_push_table_request_task(table)
 
     def _run_read_instructions_task(self, task):
         try:
