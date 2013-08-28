@@ -681,6 +681,94 @@
       "address": "C684", 
       "address_int": "50820", 
       "label": "Ea- between 2 tops "
+    },
+    "51456": {
+      "unit_of_measurement": "", 
+      "width": "1", 
+      "range": [
+        0, 
+        1
+      ], 
+      "address": "C900", 
+      "address_int": "51456", 
+      "label": "Internal temperature sensor present (0=no, 1=yes)"
+    },
+    "51457": {
+      "unit_of_measurement": "degrees", 
+      "width": "1", 
+      "range": [
+        -273, 
+        null
+      ], 
+      "address": "C901", 
+      "address_int": "51457", 
+      "label": "Temperature module"
+    },
+    "51458": {
+      "unit_of_measurement": "", 
+      "width": "1", 
+      "range": [
+        0, 
+        5
+      ], 
+      "address": "C902", 
+      "address_int": "51458", 
+      "label": "External temperature sensors (0 to 5 present)"
+    },
+    "51459": {
+      "unit_of_measurement": "degrees", 
+      "width": "1", 
+      "range": [
+        -273, 
+        null
+      ], 
+      "address": "C903", 
+      "address_int": "51459", 
+      "label": "External temperature 1"
+    },
+    "51460": {
+      "unit_of_measurement": "degrees", 
+      "width": "1", 
+      "range": [
+        -273, 
+        null
+      ], 
+      "address": "C904", 
+      "address_int": "51460", 
+      "label": "External temperature 2"
+    },
+    "51461": {
+      "unit_of_measurement": "degrees", 
+      "width": "1", 
+      "range": [
+        -273, 
+        null
+      ], 
+      "address": "C905", 
+      "address_int": "51461", 
+      "label": "External temperature 3"
+    },
+    "51462": {
+      "unit_of_measurement": "", 
+      "width": "1", 
+      "range": [
+        -1000, 
+        1000
+      ], 
+      "address": "C906", 
+      "address_int": "51462", 
+      "label": "Reserved for manufacturer"
+    },
+    "51463": {
+      "unit_of_measurement": "", 
+      "width": "1", 
+      "range": [
+        -1000, 
+        1000
+      ], 
+      "address": "C907", 
+      "address_int": "51463", 
+      "label": "Reserved for manufacturer"
     }
   }
 }
