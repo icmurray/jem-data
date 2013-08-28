@@ -9,7 +9,7 @@
       ], 
       "address": "C586", 
       "address_int": "50566", 
-      "label": "power factor phase 3 -: leading and + : lagging"
+      "label": "Phase 3 PF -/+ : leading/lagging"
     }, 
     "50564": {
       "unit_of_measurement": "0.001", 
@@ -20,7 +20,7 @@
       ], 
       "address": "C584", 
       "address_int": "50564", 
-      "label": "power factor phase 2 -: leading and + : lagging"
+      "label": "Phase 2 PF -/+ : leading/lagging"
     }, 
     "50784": {
       "unit_of_measurement": "kVAh", 
@@ -31,7 +31,7 @@
       ], 
       "address": "C660", 
       "address_int": "50784", 
-      "label": "apparent apparente"
+      "label": "Apparent Energy"
     }, 
     "50524": {
       "unit_of_measurement": "V/100", 
@@ -42,7 +42,7 @@
       ], 
       "address": "C55C", 
       "address_int": "50524", 
-      "label": "phase to neutral voltage phase 3"
+      "label": "Phase 3 To Neutral Voltage"
     }, 
     "50560": {
       "unit_of_measurement": "kVA/100", 
@@ -53,7 +53,7 @@
       ], 
       "address": "C580", 
       "address_int": "50560", 
-      "label": "apparent power phase 3"
+      "label": "Phase 3 Apparent Power"
     }, 
     "50552": {
       "unit_of_measurement": "kvar/100", 
@@ -64,7 +64,7 @@
       ], 
       "address": "C578", 
       "address_int": "50552", 
-      "label": "reactive power phase 2 +/-"
+      "label": "Phase 2 Reactive Power +/-"
     }, 
     "50800": {
       "unit_of_measurement": "", 
@@ -86,7 +86,7 @@
       ], 
       "address": "C576", 
       "address_int": "50550", 
-      "label": "reactive power phase 1 +/-"
+      "label": "Phase 1 Reactive Power +/-"
     }, 
     "50530": {
       "unit_of_measurement": "mA", 
@@ -97,7 +97,7 @@
       ], 
       "address": "C562", 
       "address_int": "50530", 
-      "label": "phase current 2"
+      "label": "Phase 2 Current"
     }, 
     "50554": {
       "unit_of_measurement": "kvar/100", 
@@ -108,7 +108,7 @@
       ], 
       "address": "C57A", 
       "address_int": "50554", 
-      "label": "reactive power phase 3 +/-"
+      "label": "Phase 3 Reactive Power +/-"
     }, 
     "50808": {
       "unit_of_measurement": "", 
@@ -141,7 +141,7 @@
       ], 
       "address": "C57E", 
       "address_int": "50558", 
-      "label": "apparent power phase 2"
+      "label": "Phase 2 Apparent Power"
     }, 
     "50538": {
       "unit_of_measurement": "kvar/100", 
@@ -152,7 +152,7 @@
       ], 
       "address": "C56A", 
       "address_int": "50538", 
-      "label": "Summation of reactive Power +/-"
+      "label": "Total Reactive Power +/-"
     }, 
     "50818": {
       "unit_of_measurement": "0,1 Ws", 
@@ -185,7 +185,7 @@
       ], 
       "address": "C560", 
       "address_int": "50528", 
-      "label": "phase current 1"
+      "label": "Phase 1 Current"
     }, 
     "50804": {
       "unit_of_measurement": "", 
@@ -207,7 +207,7 @@
       ], 
       "address": "C556", 
       "address_int": "50518", 
-      "label": "phase to phase voltage U31"
+      "label": "Phase 3 to Phase 1 Voltage"
     }, 
     "50786": {
       "unit_of_measurement": "kWh", 
@@ -218,7 +218,7 @@
       ], 
       "address": "C662", 
       "address_int": "50786", 
-      "label": "active energy -"
+      "label": "Active Energy -"
     }, 
     "50812": {
       "unit_of_measurement": "kW/100", 
@@ -251,7 +251,7 @@
       ], 
       "address": "C550", 
       "address_int": "50512", 
-      "label": "hour meter"
+      "label": "Hour Meter"
     }, 
     "50816": {
       "unit_of_measurement": "kVA/100", 
@@ -284,7 +284,7 @@
       ], 
       "address": "C566", 
       "address_int": "50534", 
-      "label": "neutral current"
+      "label": "Neutral Current"
     }, 
     "50520": {
       "unit_of_measurement": "V/100", 
@@ -295,7 +295,7 @@
       ], 
       "address": "C558", 
       "address_int": "50520", 
-      "label": "phase to neutral voltage phase 1"
+      "label": "Phase 1 To Neutral Voltage"
     }, 
     "50814": {
       "unit_of_measurement": "kvar/100", 
@@ -317,7 +317,7 @@
       ], 
       "address": "C664", 
       "address_int": "50788", 
-      "label": "active energy +"
+      "label": "Reactive Energy -"
     }, 
     "50790": {
       "unit_of_measurement": "", 
@@ -339,7 +339,7 @@
       ], 
       "address": "C568", 
       "address_int": "50536", 
-      "label": "Summation of Active Power +/-"
+      "label": "Total Active Power +/-"
     }, 
     "50810": {
       "unit_of_measurement": "", 
@@ -361,7 +361,7 @@
       ], 
       "address": "C574", 
       "address_int": "50548", 
-      "label": "active power phase 3 +/-"
+      "label": "Phase 3 Active Power +/-"
     }, 
     "50522": {
       "unit_of_measurement": "V/100", 
@@ -372,7 +372,7 @@
       ], 
       "address": "C55A", 
       "address_int": "50522", 
-      "label": "phase to neutral voltage phase 2"
+      "label": "Phase 2 To Neutral Voltage"
     }, 
     "50556": {
       "unit_of_measurement": "kVA/100", 
@@ -383,7 +383,7 @@
       ], 
       "address": "C57C", 
       "address_int": "50556", 
-      "label": "apparent power phase 1"
+      "label": "Phase 1 Apparent Power"
     }, 
     "50544": {
       "unit_of_measurement": "kW/100", 
@@ -394,7 +394,7 @@
       ], 
       "address": "C570", 
       "address_int": "50544", 
-      "label": "active power phase 1 +/-"
+      "label": "Phase 1 Active Power +/-"
     }, 
     "50514": {
       "unit_of_measurement": "V/100", 
@@ -405,7 +405,7 @@
       ], 
       "address": "C552", 
       "address_int": "50514", 
-      "label": "phase to phase voltage U12"
+      "label": "Phase 1 to Phase 2 Voltage"
     }, 
     "50516": {
       "unit_of_measurement": "V/100", 
@@ -416,7 +416,7 @@
       ], 
       "address": "C554", 
       "address_int": "50516", 
-      "label": "phase to phase voltage U23"
+      "label": "Phase 2 to Phase 3 Voltage"
     }, 
     "50540": {
       "unit_of_measurement": "kVA/100", 
@@ -427,7 +427,7 @@
       ], 
       "address": "C56C", 
       "address_int": "50540", 
-      "label": "Summation of Apparent Power +/-"
+      "label": "Total Apparent Power"
     }, 
     "50542": {
       "unit_of_measurement": "0.001", 
@@ -438,7 +438,7 @@
       ], 
       "address": "C56E", 
       "address_int": "50542", 
-      "label": "Summation of Power Factor-: leading and +: lagging "
+      "label": "Total PF -/+ : leading/lagging"
     }, 
     "50780": {
       "unit_of_measurement": "kWh", 
@@ -447,7 +447,7 @@
         0, 
         null
       ], 
-      "label": "active energy +", 
+      "label": "Active Energy +", 
       "width": "2", 
       "address": "C65C"
     }, 
@@ -460,7 +460,7 @@
       ], 
       "address": "C564", 
       "address_int": "50532", 
-      "label": "phase current 3"
+      "label": "Phase 3 Current"
     }, 
     "50546": {
       "unit_of_measurement": "kW/100", 
@@ -471,7 +471,7 @@
       ], 
       "address": "C572", 
       "address_int": "50546", 
-      "label": "active power phase 2 +/-"
+      "label": "Phase 2 Active Power +/-"
     }, 
     "50782": {
       "unit_of_measurement": "kvarh", 
@@ -482,7 +482,7 @@
       ], 
       "address": "C65E", 
       "address_int": "50782", 
-      "label": "reactive energy +"
+      "label": "Reactive Energy +"
     }, 
     "50806": {
       "unit_of_measurement": "", 
@@ -504,7 +504,7 @@
       ], 
       "address": "C582", 
       "address_int": "50562", 
-      "label": "power factor phase 1 -: leading and + : lagging"
+      "label": "Phase 1 PF -/+ : leading/lagging"
     }, 
     "50526": {
       "unit_of_measurement": "Hz/100", 
@@ -515,7 +515,7 @@
       ], 
       "address": "C55E", 
       "address_int": "50526", 
-      "label": "frequency"
+      "label": "Frequency"
     }, 
     "50822": {
       "unit_of_measurement": "0,1 vars", 
