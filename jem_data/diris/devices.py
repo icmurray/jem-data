@@ -2,12 +2,17 @@
 Device configuration table for Diris products.
 '''
 
+import os.path
+
 import jem_data.core.domain as domain
 import jem_data.diris.registers as registers
 
 try:
     import json
-    _config = json.load(open('registers.json'))
+    import pdb;pdb.set_trace()
+    _config_file = os.path.join(
+            os.path.dirname(__file__), '..', '..', 'registers.json')
+    _config = json.load(open(_config_file))
     _REGISTER_CONFIG = {}
     for device_type, config in _config.items():
         _REGISTER_CONFIG[device_type] = dict(
