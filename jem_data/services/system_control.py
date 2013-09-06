@@ -142,7 +142,7 @@ class SystemControlService(object):
         '''Return's the system's current status'''
         with self._status_lock:
             d = self._status.copy()
-        d.update('now', time.time())
+        d.update({'now': time.time()})
         return d
 
     def update_gateways(self, gateways):
