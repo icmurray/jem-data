@@ -510,7 +510,7 @@
       "unit_of_measurement": "Hz/100", 
       "width": "2", 
       "range": [
-        4000, 
+        3000, 
         7000
       ], 
       "address": "C55E", 
