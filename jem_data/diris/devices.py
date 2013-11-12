@@ -9,7 +9,6 @@ import jem_data.diris.registers as registers
 
 try:
     import json
-    import pdb;pdb.set_trace()
     _config_file = os.path.join(
             os.path.dirname(__file__), '..', '..', 'registers.json')
     _config = json.load(open(_config_file))
